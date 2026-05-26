@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: attendance-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  datasource:
+    url: ${DB_URL:jdbc:mariadb://localhost:3306/attendance}
+    username: ${DB_USERNAME:attendance}
+    password: ${DB_PASSWORD:attendance}
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      pool-name: attendance-pool
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: ${SERVER_PORT_HTTP:3000}
+  forward-headers-strategy: framework
+  error:
+    include-message: never
+    include-stacktrace: never
+  servlet:
+    session:
+      cookie:
+        same-site: strict
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+
+attendance:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-please-override-with-at-least-32-bytes}
+    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:900}
+    refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:604800}
+    issuer: attendance-system
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+  cookie:
+    refresh-name: refreshToken
+    secure: ${COOKIE_SECURE:false}
+  audit:
+    enabled: true
+
+springdoc:
+  api-docs:
+    path: /api/openapi
+  swagger-ui:
+    path: /swagger-ui
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+    com.attendance: DEBUG

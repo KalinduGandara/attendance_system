@@ -1,0 +1,33 @@
+# JetBrains / VS Code
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Maven
+backend/target/
+**/*.class
+**/hs_err_pid*.log
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# Runtime artifacts
+backups/
+reports/
+logs/
+*.log
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Docker
+**/.docker-build/

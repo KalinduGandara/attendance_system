@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    show-sql: false
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+
+attendance:
+  cookie:
+    secure: true
+
+logging:
+  level:
+    root: INFO
+    com.attendance: INFO

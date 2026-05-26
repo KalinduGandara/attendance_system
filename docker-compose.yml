@@ -1,0 +1,51 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: attendance-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpw}
+      MARIADB_DATABASE: ${DB_NAME:-attendance}
+      MARIADB_USER: ${DB_USERNAME:-attendance}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-attendance}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: attendance-backend
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      DB_URL: jdbc:mariadb://mariadb:3306/${DB_NAME:-attendance}
+      DB_USERNAME: ${DB_USERNAME:-attendance}
+      DB_PASSWORD: ${DB_PASSWORD:-attendance}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-please-override-with-at-least-32-bytes}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:8080}
+      COOKIE_SECURE: "false"
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: attendance-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  mariadb-data:

@@ -1,0 +1,44 @@
+{
+  "name": "attendance-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --noEmit",
+    "gen:api": "openapi-typescript http://localhost:3000/api/openapi -o src/lib/api-schema.ts"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.13.2",
+    "@mantine/form": "^7.13.2",
+    "@mantine/hooks": "^7.13.2",
+    "@mantine/notifications": "^7.13.2",
+    "@tabler/icons-react": "^3.19.0",
+    "@tanstack/react-query": "^5.59.0",
+    "axios": "^1.7.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.27.0",
+    "zustand": "^5.0.0-rc.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "eslint": "^9.12.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "openapi-typescript": "^7.4.1",
+    "postcss": "^8.4.47",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}
