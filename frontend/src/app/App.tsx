@@ -12,6 +12,13 @@ import { LoginPage } from '../features/auth/pages/LoginPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { ForbiddenPage } from '../features/errors/ForbiddenPage';
 import { NotFoundPage } from '../features/errors/NotFoundPage';
+import { UsersPage } from '../features/identity/pages/UsersPage';
+import { EmployeesListPage } from '../features/organization/pages/EmployeesListPage';
+import { EmployeeFormPage } from '../features/organization/pages/EmployeeFormPage';
+import { DepartmentsPage } from '../features/organization/pages/DepartmentsPage';
+import { GroupsPage } from '../features/organization/pages/GroupsPage';
+import { CustomFieldsPage } from '../features/organization/pages/CustomFieldsPage';
+import { HolidaysPage } from '../features/organization/pages/HolidaysPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } }
@@ -45,6 +52,70 @@ export function App() {
                 }
               >
                 <Route path="/" element={<DashboardPage />} />
+                <Route
+                  path="/users"
+                  element={
+                    <ProtectedRoute requirePermission="user.read">
+                      <UsersPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/employees"
+                  element={
+                    <ProtectedRoute requirePermission="employee.read">
+                      <EmployeesListPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/employees/new"
+                  element={
+                    <ProtectedRoute requirePermission="employee.write">
+                      <EmployeeFormPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/employees/:id"
+                  element={
+                    <ProtectedRoute requirePermission="employee.read">
+                      <EmployeeFormPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/departments"
+                  element={
+                    <ProtectedRoute requirePermission="employee.read">
+                      <DepartmentsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/groups"
+                  element={
+                    <ProtectedRoute requirePermission="employee.read">
+                      <GroupsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/custom-fields"
+                  element={
+                    <ProtectedRoute requirePermission="employee.read">
+                      <CustomFieldsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/holidays"
+                  element={
+                    <ProtectedRoute requirePermission="employee.read">
+                      <HolidaysPage />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

@@ -1,8 +1,11 @@
 package com.attendance.identity.domain;
 
+import com.attendance.common.audit.AuditEntityListener;
+import com.attendance.common.audit.Auditable;
 import com.attendance.common.jpa.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -23,6 +26,8 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@Auditable("User")
+@EntityListeners(AuditEntityListener.class)
 public class User extends BaseEntity {
 
     @Column(name = "username", nullable = false, unique = true, length = 64)

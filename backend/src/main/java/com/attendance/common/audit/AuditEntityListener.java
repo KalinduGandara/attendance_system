@@ -18,6 +18,12 @@ import java.util.UUID;
  * <p>The listener uses {@link AuditPublisher} (set once during application startup) to
  * decouple JPA lifecycle callbacks from Spring's container — JPA instantiates listeners
  * directly, so they cannot use injected fields.
+ *
+ * <p>The actual write of the audit row is deferred until after the surrounding transaction
+ * commits (via {@link TransactionSynchronization}). Writing inline during flush triggers
+ * {@code ConcurrentModificationException} in Hibernate's action queue, because publishing
+ * a {@code REQUIRES_NEW} transaction while the outer flush is iterating its actions causes
+ * the iterator to observe the new {@code AuditEvent} insert action.
  */
 public class AuditEntityListener {
 
@@ -61,6 +67,7 @@ public class AuditEntityListener {
             event.setRequestId(RequestContext.requestId());
             event.setOccurredAt(Instant.now());
             event.setAfterJson(toJson(entity));
+
             publisher.publish(event);
         } catch (RuntimeException ex) {
             log.warn("Failed to record audit event for {}", entity.getClass().getSimpleName(), ex);

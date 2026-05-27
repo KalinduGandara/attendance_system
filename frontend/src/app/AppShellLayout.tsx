@@ -1,6 +1,16 @@
 import { AppShell, Burger, Group, NavLink, ScrollArea, Text, Avatar, Menu, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconLayoutDashboard, IconLogout, IconUserCircle } from '@tabler/icons-react';
+import {
+  IconBuildingSkyscraper,
+  IconCalendarStats,
+  IconLayoutDashboard,
+  IconListDetails,
+  IconLogout,
+  IconShieldLock,
+  IconUserCircle,
+  IconUsers,
+  IconUsersGroup
+} from '@tabler/icons-react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../lib/authStore';
 import { authApi } from '../lib/authApi';
@@ -12,7 +22,15 @@ interface NavItem {
   permission?: string;
 }
 
-const NAV: NavItem[] = [{ label: 'Dashboard', to: '/', icon: IconLayoutDashboard }];
+const NAV: NavItem[] = [
+  { label: 'Dashboard', to: '/', icon: IconLayoutDashboard },
+  { label: 'Employees', to: '/employees', icon: IconUsers, permission: 'employee.read' },
+  { label: 'Departments', to: '/departments', icon: IconBuildingSkyscraper, permission: 'employee.read' },
+  { label: 'Groups', to: '/groups', icon: IconUsersGroup, permission: 'employee.read' },
+  { label: 'Custom fields', to: '/custom-fields', icon: IconListDetails, permission: 'employee.read' },
+  { label: 'Holidays', to: '/holidays', icon: IconCalendarStats, permission: 'employee.read' },
+  { label: 'Users', to: '/users', icon: IconShieldLock, permission: 'user.read' }
+];
 
 export function AppShellLayout() {
   const [opened, { toggle }] = useDisclosure();

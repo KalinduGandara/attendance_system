@@ -65,6 +65,23 @@ cd frontend && npm install && npm run dev # http://localhost:5173, proxies /api 
 
 ## Status
 
+**Phase 1 (Identity & Organization) complete.** Adds:
+
+- Tables (V3 + V4 migrations): `department`, `user_group`, `employee`, `employee_group`,
+  `custom_field_definition`, `custom_field_value`, `holiday`, `holiday_group`,
+  `employee_import_job`.
+- REST CRUD for users, roles (read), permissions (read), employees, departments (with tree),
+  groups (with tree), custom fields, holidays. All write endpoints permission-gated and audited.
+- Manager-scope service: given a user, returns the set of visible employee ids (admin/HR sees all;
+  managers see self + transitive direct reports). Foundation for Phase 4+ row-level filters.
+- Bulk employee CSV import — synchronous below 1000 rows, async (`@Async`) above. Job status
+  persisted in `employee_import_job`.
+- Frontend pages (React Hook Form + Zod, permission-gated): Users, Employees list & form
+  (with custom-field inputs), Departments tree, Groups tree, Custom Fields, Holidays.
+- Tests (28 passing): department / group hierarchy + cycle detection, employee CRUD + custom
+  fields, manager scope resolution, CSV import (sync + error reporting), controller security.
+
 **Phase 0 (Foundation) complete.** End-to-end auth slice, Flyway-managed schema, audit
 infrastructure, OpenAPI/Swagger, Mantine app shell, dev docker-compose, GitHub Actions CI.
-Next: Phase 1 — Identity & Organization (see [docs/plan.md](docs/plan.md)).
+
+Next: Phase 2 — Devices, Credentials, Ingestion Sources (see [docs/plan.md](docs/plan.md)).
