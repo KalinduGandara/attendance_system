@@ -24,6 +24,10 @@ import { IngestionSourcesPage } from '../features/device/pages/IngestionSourcesP
 import { TimeCodesPage } from '../features/timecode/pages/TimeCodesPage';
 import { ShiftsListPage } from '../features/shift/pages/ShiftsListPage';
 import { ShiftFormPage } from '../features/shift/pages/ShiftFormPage';
+import { ScheduleTemplatesPage } from '../features/schedule/pages/ScheduleTemplatesPage';
+import { ScheduleTemplateFormPage } from '../features/schedule/pages/ScheduleTemplateFormPage';
+import { ScheduleAssignmentsPage } from '../features/schedule/pages/ScheduleAssignmentsPage';
+import { TemporarySchedulesPage } from '../features/schedule/pages/TemporarySchedulesPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } }
@@ -166,6 +170,46 @@ export function App() {
                   element={
                     <ProtectedRoute requirePermission="shift.read">
                       <ShiftFormPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/schedule-templates"
+                  element={
+                    <ProtectedRoute requirePermission="schedule.read">
+                      <ScheduleTemplatesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/schedule-templates/new"
+                  element={
+                    <ProtectedRoute requirePermission="schedule.write">
+                      <ScheduleTemplateFormPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/schedule-templates/:id"
+                  element={
+                    <ProtectedRoute requirePermission="schedule.read">
+                      <ScheduleTemplateFormPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/schedule-assignments"
+                  element={
+                    <ProtectedRoute requirePermission="schedule.read">
+                      <ScheduleAssignmentsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/temporary-schedules"
+                  element={
+                    <ProtectedRoute requirePermission="schedule.read">
+                      <TemporarySchedulesPage />
                     </ProtectedRoute>
                   }
                 />

@@ -2,7 +2,10 @@ import { AppShell, Burger, Group, NavLink, ScrollArea, Text, Avatar, Menu, Unsty
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconBuildingSkyscraper,
+  IconCalendar,
+  IconCalendarEvent,
   IconCalendarStats,
+  IconCalendarTime,
   IconClockHour4,
   IconCloudUpload,
   IconDeviceMobile,
@@ -37,6 +40,9 @@ const NAV: NavItem[] = [
   { label: 'Ingestion sources', to: '/ingestion-sources', icon: IconCloudUpload, permission: 'device.read' },
   { label: 'Time codes', to: '/time-codes', icon: IconScale, permission: 'timecode.read' },
   { label: 'Shifts', to: '/shifts', icon: IconClockHour4, permission: 'shift.read' },
+  { label: 'Schedule templates', to: '/schedule-templates', icon: IconCalendar, permission: 'schedule.read' },
+  { label: 'Assignments', to: '/schedule-assignments', icon: IconCalendarEvent, permission: 'schedule.read' },
+  { label: 'Temporary schedules', to: '/temporary-schedules', icon: IconCalendarTime, permission: 'schedule.read' },
   { label: 'Users', to: '/users', icon: IconShieldLock, permission: 'user.read' }
 ];
 

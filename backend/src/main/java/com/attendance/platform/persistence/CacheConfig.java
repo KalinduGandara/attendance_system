@@ -14,6 +14,7 @@ public class CacheConfig {
 
     public static final String TIME_CODES = "timeCodes";
     public static final String SHIFTS = "shifts";
+    public static final String SCHEDULE_TEMPLATES = "scheduleTemplates";
 
     @Bean
     public CacheManager cacheManager() {
@@ -21,7 +22,7 @@ public class CacheConfig {
         mgr.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(Duration.ofMinutes(10))
                 .maximumSize(10_000));
-        mgr.setCacheNames(List.of(TIME_CODES, SHIFTS));
+        mgr.setCacheNames(List.of(TIME_CODES, SHIFTS, SCHEDULE_TEMPLATES));
         return mgr;
     }
 }

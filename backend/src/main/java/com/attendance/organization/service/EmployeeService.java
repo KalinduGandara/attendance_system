@@ -71,6 +71,19 @@ public class EmployeeService {
         return toResponse(e);
     }
 
+    /**
+     * Returns the set of group ids the employee belongs to. Used by other modules
+     * (e.g. schedule resolution) without exposing the {@code Employee} entity.
+     */
+    @Transactional(readOnly = true)
+    public Set<UUID> groupIdsForEmployee(UUID employeeId) {
+        return employeeRepository.findById(employeeId)
+                .map(e -> e.getGroups().stream()
+                        .map(UserGroup::getId)
+                        .collect(Collectors.toSet()))
+                .orElse(Set.of());
+    }
+
     @Transactional
     public EmployeeDtos.EmployeeResponse create(EmployeeDtos.EmployeeRequest req) {
         if (employeeRepository.existsByEmployeeCode(req.employeeCode())) {
