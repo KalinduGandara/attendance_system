@@ -65,6 +65,26 @@ cd frontend && npm install && npm run dev # http://localhost:5173, proxies /api 
 
 ## Status
 
+**Phase 2 (Devices, Credentials, Ingestion Sources) complete.** Adds:
+
+- Tables (V5 migration): `device`, `ingestion_source`, `device_ingestion_source`, `credential`.
+  Seeds one REST source ("Default Web Ingestion") with no API key — the admin must rotate-key
+  on it to start accepting `X-Source-Api-Key` traffic.
+- REST CRUD for `/devices` (`device.read|write`), `/ingestion-sources` (`device.read|write`),
+  and `/employees/{id}/credentials` (`employee.read|write`). API keys for sources are generated
+  on create / rotate, returned plaintext exactly once, persisted only as SHA-256.
+- Credential resolution service: given `(type, rawValue)` returns the active credential's
+  employee id, gated by `valid_from`/`valid_to` and `status=ACTIVE`. Phase 5 ingest hooks here.
+- `X-Source-Api-Key` authentication filter — runs before the JWT filter, populates a distinct
+  `IngestionSourcePrincipal` granting only `ingestion.write`. A stub `GET /ingestion/ping`
+  endpoint exercises the wiring (real `POST /ingestion/punches` lands in Phase 5).
+- Frontend pages: Devices (paged list + status filter + capabilities JSON), Ingestion sources
+  (list + rotate-key flow that reveals the plaintext key once in a copyable dialog) and a
+  Credentials card on each employee form for issue/revoke/delete.
+- Tests (57 passing total, +28 in Phase 2): device CRUD + paged search, ingestion source
+  create/rotate/disable + API key lookup, credential uniqueness across types + revoke flow +
+  validity-window resolution, end-to-end API key auth via MockMvc, controller security gates.
+
 **Phase 1 (Identity & Organization) complete.** Adds:
 
 - Tables (V3 + V4 migrations): `department`, `user_group`, `employee`, `employee_group`,
@@ -84,4 +104,4 @@ cd frontend && npm install && npm run dev # http://localhost:5173, proxies /api 
 **Phase 0 (Foundation) complete.** End-to-end auth slice, Flyway-managed schema, audit
 infrastructure, OpenAPI/Swagger, Mantine app shell, dev docker-compose, GitHub Actions CI.
 
-Next: Phase 2 — Devices, Credentials, Ingestion Sources (see [docs/plan.md](docs/plan.md)).
+Next: Phase 3 — Time Codes & Shifts (see [docs/plan.md](docs/plan.md)).

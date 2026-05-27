@@ -31,6 +31,7 @@ import type {
   EmploymentType
 } from '../types';
 import { describeApiError } from '../../../lib/apiError';
+import { EmployeeCredentialsCard } from '../../device/components/EmployeeCredentialsCard';
 
 const schema = z.object({
   employeeCode: z.string().min(1).max(64),
@@ -144,6 +145,7 @@ export function EmployeeFormPage() {
             : undefined
         }
       />
+      {employee && <EmployeeCredentialsCard employeeId={employee.id} />}
     </Stack>
   );
 }

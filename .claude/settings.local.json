@@ -7,7 +7,9 @@
       "Bash(mvn clean *)",
       "Bash(mvn test *)",
       "Bash(mvn -q test)",
-      "Bash(mvn -DskipTests clean compile)"
+      "Bash(mvn -DskipTests clean compile)",
+      "Bash(mvn -q compile)",
+      "Bash(npm run *)"
     ],
     "additionalDirectories": [
       "/home/kalindu/work/attendance_system2/docs"

@@ -19,6 +19,8 @@ import { DepartmentsPage } from '../features/organization/pages/DepartmentsPage'
 import { GroupsPage } from '../features/organization/pages/GroupsPage';
 import { CustomFieldsPage } from '../features/organization/pages/CustomFieldsPage';
 import { HolidaysPage } from '../features/organization/pages/HolidaysPage';
+import { DevicesPage } from '../features/device/pages/DevicesPage';
+import { IngestionSourcesPage } from '../features/device/pages/IngestionSourcesPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } }
@@ -113,6 +115,22 @@ export function App() {
                   element={
                     <ProtectedRoute requirePermission="employee.read">
                       <HolidaysPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/devices"
+                  element={
+                    <ProtectedRoute requirePermission="device.read">
+                      <DevicesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/ingestion-sources"
+                  element={
+                    <ProtectedRoute requirePermission="device.read">
+                      <IngestionSourcesPage />
                     </ProtectedRoute>
                   }
                 />

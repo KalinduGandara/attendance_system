@@ -1,5 +1,6 @@
 package com.attendance.platform.security;
 
+import com.attendance.device.web.ApiKeyAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthenticationFilter jwtFilter,
+                                                   ApiKeyAuthenticationFilter apiKeyFilter,
                                                    @Qualifier("appCorsConfigurationSource") CorsConfigurationSource corsSource,
                                                    ObjectMapper objectMapper) throws Exception {
         http
@@ -65,7 +67,8 @@ public class SecurityConfig {
                                 HttpServletResponse.SC_UNAUTHORIZED, "Authentication required", req.getRequestURI()))
                         .accessDeniedHandler((req, res, ex) -> writeProblem(res, objectMapper,
                                 HttpServletResponse.SC_FORBIDDEN, "Access denied", req.getRequestURI())))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(apiKeyFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 

@@ -3,6 +3,8 @@ import { useDisclosure } from '@mantine/hooks';
 import {
   IconBuildingSkyscraper,
   IconCalendarStats,
+  IconCloudUpload,
+  IconDeviceMobile,
   IconLayoutDashboard,
   IconListDetails,
   IconLogout,
@@ -29,6 +31,8 @@ const NAV: NavItem[] = [
   { label: 'Groups', to: '/groups', icon: IconUsersGroup, permission: 'employee.read' },
   { label: 'Custom fields', to: '/custom-fields', icon: IconListDetails, permission: 'employee.read' },
   { label: 'Holidays', to: '/holidays', icon: IconCalendarStats, permission: 'employee.read' },
+  { label: 'Devices', to: '/devices', icon: IconDeviceMobile, permission: 'device.read' },
+  { label: 'Ingestion sources', to: '/ingestion-sources', icon: IconCloudUpload, permission: 'device.read' },
   { label: 'Users', to: '/users', icon: IconShieldLock, permission: 'user.read' }
 ];
 
