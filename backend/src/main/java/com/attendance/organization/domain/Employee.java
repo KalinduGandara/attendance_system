@@ -3,9 +3,9 @@ package com.attendance.organization.domain;
 import com.attendance.common.audit.AuditEntityListener;
 import com.attendance.common.audit.Auditable;
 import com.attendance.common.jpa.BaseEntity;
-import com.attendance.common.jpa.UuidBinaryConverter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
@@ -33,7 +33,7 @@ import java.util.UUID;
 @EntityListeners(AuditEntityListener.class)
 public class Employee extends BaseEntity {
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "user_id", columnDefinition = "BINARY(16)")
     private UUID userId;
 
@@ -52,11 +52,11 @@ public class Employee extends BaseEntity {
     @Column(name = "phone", length = 32)
     private String phone;
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "department_id", columnDefinition = "BINARY(16)")
     private UUID departmentId;
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "manager_id", columnDefinition = "BINARY(16)")
     private UUID managerId;
 

@@ -1,9 +1,9 @@
 package com.attendance.common.audit;
 
-import com.attendance.common.jpa.UuidBinaryConverter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import com.attendance.common.uuid.UuidV7;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
@@ -21,11 +21,11 @@ import java.util.UUID;
 public class AuditEvent {
 
     @Id
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false, updatable = false)
     private UUID id;
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "actor_user_id", columnDefinition = "BINARY(16)")
     private UUID actorUserId;
 
@@ -38,7 +38,7 @@ public class AuditEvent {
     @Column(name = "entity_type", length = 64)
     private String entityType;
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "entity_id", columnDefinition = "BINARY(16)")
     private UUID entityId;
 
@@ -54,7 +54,7 @@ public class AuditEvent {
     @Column(name = "user_agent", length = 255)
     private String userAgent;
 
-    @Column(name = "request_id", length = 36)
+    @Column(name = "request_id", columnDefinition = "CHAR(36)")
     private String requestId;
 
     @Column(name = "occurred_at", nullable = false)

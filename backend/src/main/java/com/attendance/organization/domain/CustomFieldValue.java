@@ -1,9 +1,9 @@
 package com.attendance.organization.domain;
 
 import com.attendance.common.jpa.BaseEntity;
-import com.attendance.common.jpa.UuidBinaryConverter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -24,11 +24,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CustomFieldValue extends BaseEntity {
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "definition_id", columnDefinition = "BINARY(16)", nullable = false)
     private UUID definitionId;
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "entity_id", columnDefinition = "BINARY(16)", nullable = false)
     private UUID entityId;
 

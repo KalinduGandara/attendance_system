@@ -1,9 +1,9 @@
 package com.attendance.organization.domain;
 
 import com.attendance.common.jpa.BaseEntity;
-import com.attendance.common.jpa.UuidBinaryConverter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -47,7 +47,7 @@ public class EmployeeImportJob extends BaseEntity {
     @Column(name = "error_report", columnDefinition = "TEXT")
     private String errorReport;
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "requested_by", columnDefinition = "BINARY(16)")
     private UUID requestedBy;
 

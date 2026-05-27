@@ -1,9 +1,9 @@
 package com.attendance.identity.domain;
 
 import com.attendance.common.jpa.BaseEntity;
-import com.attendance.common.jpa.UuidBinaryConverter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -20,14 +20,14 @@ import java.util.UUID;
 @NoArgsConstructor
 public class RefreshToken extends BaseEntity {
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "user_id", columnDefinition = "BINARY(16)", nullable = false)
     private UUID userId;
 
-    @Column(name = "token_hash", nullable = false, unique = true, length = 64)
+    @Column(name = "token_hash", nullable = false, unique = true, columnDefinition = "CHAR(64)")
     private String tokenHash;
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "family_id", columnDefinition = "BINARY(16)", nullable = false)
     private UUID familyId;
 

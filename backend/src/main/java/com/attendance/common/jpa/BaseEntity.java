@@ -1,7 +1,6 @@
 package com.attendance.common.jpa;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
@@ -9,6 +8,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -27,7 +28,7 @@ import java.util.UUID;
 public abstract class BaseEntity {
 
     @Id
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false, updatable = false)
     private UUID id;
 
@@ -36,7 +37,7 @@ public abstract class BaseEntity {
     private Instant createdAt;
 
     @CreatedBy
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "created_by", columnDefinition = "BINARY(16)", updatable = false)
     private UUID createdBy;
 
@@ -45,7 +46,7 @@ public abstract class BaseEntity {
     private Instant updatedAt;
 
     @LastModifiedBy
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "updated_by", columnDefinition = "BINARY(16)")
     private UUID updatedBy;
 

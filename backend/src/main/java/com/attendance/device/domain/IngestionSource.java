@@ -37,7 +37,7 @@ public class IngestionSource extends BaseEntity {
     @Column(name = "config_json", nullable = false, columnDefinition = "TEXT")
     private String configJson = "{}";
 
-    @Column(name = "api_key_hash", length = 64)
+    @Column(name = "api_key_hash", columnDefinition = "CHAR(64)")
     private String apiKeyHash;
 
     @Column(name = "last_event_at")

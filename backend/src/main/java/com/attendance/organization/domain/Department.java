@@ -3,9 +3,9 @@ package com.attendance.organization.domain;
 import com.attendance.common.audit.AuditEntityListener;
 import com.attendance.common.audit.Auditable;
 import com.attendance.common.jpa.BaseEntity;
-import com.attendance.common.jpa.UuidBinaryConverter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Table;
@@ -27,7 +27,7 @@ public class Department extends BaseEntity {
     @Column(name = "name", nullable = false, length = 128)
     private String name;
 
-    @Convert(converter = UuidBinaryConverter.class)
+    @JdbcTypeCode(SqlTypes.BINARY)
     @Column(name = "parent_id", columnDefinition = "BINARY(16)")
     private UUID parentId;
 
