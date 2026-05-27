@@ -10,7 +10,9 @@
       "Bash(mvn -DskipTests clean compile)",
       "Bash(mvn -q compile)",
       "Bash(npm run *)",
-      "Bash(mvn -DskipTests compile)"
+      "Bash(mvn -DskipTests compile)",
+      "Bash(docker exec *)",
+      "Bash(mvn -q spring-boot:run)"
     ],
     "additionalDirectories": [
       "/home/kalindu/work/attendance_system2/docs"

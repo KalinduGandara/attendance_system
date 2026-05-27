@@ -1,6 +1,6 @@
 package com.attendance.shift.domain;
 
-import com.attendance.common.jpa.BaseEntity;
+import com.attendance.common.jpa.BaseChildEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ShiftSegment extends BaseEntity {
+public class ShiftSegment extends BaseChildEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shift_id", nullable = false,

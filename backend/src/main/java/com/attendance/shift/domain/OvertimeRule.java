@@ -1,6 +1,6 @@
 package com.attendance.shift.domain;
 
-import com.attendance.common.jpa.BaseEntity;
+import com.attendance.common.jpa.BaseChildEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -20,7 +20,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OvertimeRule extends BaseEntity {
+public class OvertimeRule extends BaseChildEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shift_id", nullable = false,

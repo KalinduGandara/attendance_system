@@ -1,6 +1,6 @@
 package com.attendance.shift.domain;
 
-import com.attendance.common.jpa.BaseEntity;
+import com.attendance.common.jpa.BaseChildEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ShiftGraceRule extends BaseEntity {
+public class ShiftGraceRule extends BaseChildEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shift_id", nullable = false,
