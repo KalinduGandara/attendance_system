@@ -21,6 +21,9 @@ import { CustomFieldsPage } from '../features/organization/pages/CustomFieldsPag
 import { HolidaysPage } from '../features/organization/pages/HolidaysPage';
 import { DevicesPage } from '../features/device/pages/DevicesPage';
 import { IngestionSourcesPage } from '../features/device/pages/IngestionSourcesPage';
+import { TimeCodesPage } from '../features/timecode/pages/TimeCodesPage';
+import { ShiftsListPage } from '../features/shift/pages/ShiftsListPage';
+import { ShiftFormPage } from '../features/shift/pages/ShiftFormPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } }
@@ -131,6 +134,38 @@ export function App() {
                   element={
                     <ProtectedRoute requirePermission="device.read">
                       <IngestionSourcesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/time-codes"
+                  element={
+                    <ProtectedRoute requirePermission="timecode.read">
+                      <TimeCodesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/shifts"
+                  element={
+                    <ProtectedRoute requirePermission="shift.read">
+                      <ShiftsListPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/shifts/new"
+                  element={
+                    <ProtectedRoute requirePermission="shift.write">
+                      <ShiftFormPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/shifts/:id"
+                  element={
+                    <ProtectedRoute requirePermission="shift.read">
+                      <ShiftFormPage />
                     </ProtectedRoute>
                   }
                 />
