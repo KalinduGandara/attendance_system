@@ -1,13 +1,17 @@
 package com.attendance.timecard.web;
 
 import com.attendance.timecard.domain.DailyTimeCardStatus;
+import com.attendance.timecard.service.TimeCardEditService;
 import com.attendance.timecard.service.TimeCardReadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,14 +26,16 @@ import java.util.UUID;
 public class TimeCardController {
 
     private final TimeCardReadService readService;
+    private final TimeCardEditService editService;
 
-    public TimeCardController(TimeCardReadService readService) {
+    public TimeCardController(TimeCardReadService readService, TimeCardEditService editService) {
         this.readService = readService;
+        this.editService = editService;
     }
 
     @GetMapping
     @PreAuthorize("hasAuthority('timecard.read')")
-    @Operation(summary = "List daily time cards. Phase 5 ships a basic filter; Phase 6 adds group + status filters.")
+    @Operation(summary = "List daily time cards filtered by employee/status/date window.")
     public List<TimeCardDtos.TimeCardResponse> list(
             @RequestParam(required = false) UUID employeeId,
             @RequestParam(required = false) DailyTimeCardStatus status,
@@ -40,8 +46,16 @@ public class TimeCardController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('timecard.read')")
-    @Operation(summary = "Get a daily time card by id")
-    public TimeCardDtos.TimeCardResponse get(@PathVariable UUID id) {
-        return readService.get(id);
+    @Operation(summary = "Detail view of a time card: punches, breakdown, exceptions, edit history.")
+    public TimeCardDtos.TimeCardDetailResponse get(@PathVariable UUID id) {
+        return readService.getDetail(id);
+    }
+
+    @PostMapping("/{id}/edits")
+    @PreAuthorize("hasAuthority('timecard.edit')")
+    @Operation(summary = "Apply a manual edit (add/edit/delete punch, change status, set note); recomputes synchronously.")
+    public TimeCardDtos.TimeCardDetailResponse edit(@PathVariable UUID id,
+                                                    @Valid @RequestBody TimeCardDtos.EditRequest body) {
+        return editService.applyEdit(id, body);
     }
 }

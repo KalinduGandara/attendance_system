@@ -2,6 +2,12 @@ export type DailyTimeCardStatus = 'PRESENT' | 'ABSENT' | 'LEAVE' | 'HOLIDAY' | '
 export type PunchEventStatus = 'PROCESSED' | 'UNRESOLVED' | 'INVALID' | 'SUPERSEDED';
 export type PunchEventType = 'CHECK_IN' | 'CHECK_OUT' | 'BREAK_START' | 'BREAK_END';
 export type CredentialType = 'RFID' | 'QR' | 'MOBILE' | 'FACE' | 'FINGER' | 'PIN';
+export type TimeCardEditChangeType =
+  | 'PUNCH_ADD'
+  | 'PUNCH_EDIT'
+  | 'PUNCH_DELETE'
+  | 'STATUS_CHANGE'
+  | 'NOTE';
 
 export interface EmployeeRef {
   id: string;
@@ -61,6 +67,34 @@ export interface PunchEvent {
   eventTimeUtc: string;
   status: PunchEventStatus;
   processedAt: string | null;
+}
+
+export interface TimeCardEdit {
+  id: string;
+  punchEventId: string | null;
+  changeType: TimeCardEditChangeType;
+  beforeJson: string | null;
+  afterJson: string | null;
+  reason: string;
+  editedByUserId: string;
+  editedAt: string;
+}
+
+export interface TimeCardDetail extends TimeCard {
+  notes: string | null;
+  punches: PunchEvent[];
+  edits: TimeCardEdit[];
+}
+
+export interface TimeCardEditRequest {
+  changeType: TimeCardEditChangeType;
+  punchEventId?: string | null;
+  eventType?: PunchEventType | null;
+  newEventTime?: string | null;
+  ingestionSourceId?: string | null;
+  newStatus?: DailyTimeCardStatus | null;
+  newNotes?: string | null;
+  reason: string;
 }
 
 export interface IngestionEventResult {

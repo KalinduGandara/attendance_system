@@ -1,0 +1,31 @@
+.fc {
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.fc .fc-button {
+  background: var(--mantine-color-blue-6);
+  border-color: var(--mantine-color-blue-6);
+  text-transform: none;
+}
+
+.fc .fc-button:hover {
+  background: var(--mantine-color-blue-7);
+  border-color: var(--mantine-color-blue-7);
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background: var(--mantine-color-blue-8);
+  border-color: var(--mantine-color-blue-8);
+}
+
+.fc-event {
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 2px 4px;
+}

@@ -50,4 +50,39 @@ class TimeCardControllerSecurityTest {
                         .content("{}"))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void timecard_edits_anonymous_returns_401() throws Exception {
+        mvc.perform(post("/api/v1/timecards/00000000-0000-0000-0000-000000000000/edits")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"changeType\":\"NOTE\",\"reason\":\"x\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(authorities = {"timecard.read"})
+    void timecard_edits_without_edit_permission_returns_403() throws Exception {
+        mvc.perform(post("/api/v1/timecards/00000000-0000-0000-0000-000000000000/edits")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"changeType\":\"NOTE\",\"reason\":\"x\"}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = {"timecard.edit"})
+    void timecard_edits_missing_reason_returns_400() throws Exception {
+        mvc.perform(post("/api/v1/timecards/00000000-0000-0000-0000-000000000000/edits")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"changeType\":\"NOTE\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(authorities = {"timecard.read"})
+    void punch_assign_requires_edit_permission() throws Exception {
+        mvc.perform(post("/api/v1/punch-events/00000000-0000-0000-0000-000000000000/assign")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"employeeId\":\"00000000-0000-0000-0000-000000000000\"}"))
+                .andExpect(status().isForbidden());
+    }
 }

@@ -181,7 +181,10 @@ public class TimeCardRecomputeService {
         card.setLateMinutes(output.lateMinutes());
         card.setEarlyOutMinutes(output.earlyOutMinutes());
         card.setStatus(output.status());
-        card.setNotes(output.notes());
+        // Engine never sets notes — preserve any manually-set value on recompute.
+        if (output.notes() != null) {
+            card.setNotes(output.notes());
+        }
 
         card.getBreakdowns().clear();
         for (EngineOutput.BreakdownLine line : output.breakdowns()) {

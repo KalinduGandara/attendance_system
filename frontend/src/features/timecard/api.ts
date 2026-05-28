@@ -6,7 +6,9 @@ import type {
   PunchEventStatus,
   RecomputeRequest,
   RecomputeResponse,
-  TimeCard
+  TimeCard,
+  TimeCardDetail,
+  TimeCardEditRequest
 } from './types';
 
 export const timecardApi = {
@@ -18,8 +20,14 @@ export const timecardApi = {
   }): Promise<TimeCard[]> =>
     (await apiClient.get<TimeCard[]>('/timecards', { params })).data,
 
-  getTimeCard: async (id: string): Promise<TimeCard> =>
-    (await apiClient.get<TimeCard>(`/timecards/${id}`)).data,
+  getTimeCard: async (id: string): Promise<TimeCardDetail> =>
+    (await apiClient.get<TimeCardDetail>(`/timecards/${id}`)).data,
+
+  editTimeCard: async (id: string, body: TimeCardEditRequest): Promise<TimeCardDetail> =>
+    (await apiClient.post<TimeCardDetail>(`/timecards/${id}/edits`, body)).data,
+
+  assignPunch: async (punchId: string, employeeId: string): Promise<PunchEvent> =>
+    (await apiClient.post<PunchEvent>(`/punch-events/${punchId}/assign`, { employeeId })).data,
 
   listPunches: async (params?: {
     employeeId?: string;

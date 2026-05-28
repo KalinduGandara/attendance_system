@@ -28,7 +28,7 @@ import { ScheduleTemplatesPage } from '../features/schedule/pages/ScheduleTempla
 import { ScheduleTemplateFormPage } from '../features/schedule/pages/ScheduleTemplateFormPage';
 import { ScheduleAssignmentsPage } from '../features/schedule/pages/ScheduleAssignmentsPage';
 import { TemporarySchedulesPage } from '../features/schedule/pages/TemporarySchedulesPage';
-import { TimeCardsListPage } from '../features/timecard/pages/TimeCardsListPage';
+import { TimeCardDashboardPage } from '../features/timecard/pages/TimeCardDashboardPage';
 import { PunchesListPage } from '../features/timecard/pages/PunchesListPage';
 import { UnresolvedPunchesPage } from '../features/timecard/pages/UnresolvedPunchesPage';
 import { IngestPunchPage } from '../features/timecard/pages/IngestPunchPage';
@@ -221,7 +221,7 @@ export function App() {
                   path="/timecards"
                   element={
                     <ProtectedRoute requirePermission="timecard.read">
-                      <TimeCardsListPage />
+                      <TimeCardDashboardPage />
                     </ProtectedRoute>
                   }
                 />

@@ -4,10 +4,15 @@ import com.attendance.common.error.ApiException;
 import com.attendance.exception.repository.ExceptionEventRepository;
 import com.attendance.organization.domain.Employee;
 import com.attendance.organization.repository.EmployeeRepository;
+import com.attendance.organization.service.EmployeeService;
 import com.attendance.shift.service.ShiftService;
 import com.attendance.timecard.domain.DailyTimeCard;
 import com.attendance.timecard.domain.DailyTimeCardStatus;
+import com.attendance.timecard.domain.PunchEvent;
+import com.attendance.timecard.domain.TimeCardEdit;
 import com.attendance.timecard.repository.DailyTimeCardRepository;
+import com.attendance.timecard.repository.PunchEventRepository;
+import com.attendance.timecard.repository.TimeCardEditRepository;
 import com.attendance.timecode.domain.TimeCode;
 import com.attendance.timecode.repository.TimeCodeRepository;
 import com.attendance.timecard.web.TimeCardDtos;
@@ -15,7 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,20 +36,29 @@ public class TimeCardReadService {
 
     private final DailyTimeCardRepository repository;
     private final EmployeeRepository employeeRepository;
+    private final EmployeeService employeeService;
     private final TimeCodeRepository timeCodeRepository;
     private final ShiftService shiftService;
     private final ExceptionEventRepository exceptionRepository;
+    private final PunchEventRepository punchEventRepository;
+    private final TimeCardEditRepository editRepository;
 
     public TimeCardReadService(DailyTimeCardRepository repository,
                                EmployeeRepository employeeRepository,
+                               EmployeeService employeeService,
                                TimeCodeRepository timeCodeRepository,
                                ShiftService shiftService,
-                               ExceptionEventRepository exceptionRepository) {
+                               ExceptionEventRepository exceptionRepository,
+                               PunchEventRepository punchEventRepository,
+                               TimeCardEditRepository editRepository) {
         this.repository = repository;
         this.employeeRepository = employeeRepository;
+        this.employeeService = employeeService;
         this.timeCodeRepository = timeCodeRepository;
         this.shiftService = shiftService;
         this.exceptionRepository = exceptionRepository;
+        this.punchEventRepository = punchEventRepository;
+        this.editRepository = editRepository;
     }
 
     @Transactional(readOnly = true)
@@ -52,7 +70,7 @@ public class TimeCardReadService {
         Map<UUID, Employee> employees = loadEmployees(cards);
         Map<UUID, TimeCode> timeCodes = loadTimeCodes(cards);
         return cards.stream()
-                .map(c -> toResponse(c, employees.get(c.getEmployeeId()), timeCodes))
+                .map(c -> toSummary(c, employees.get(c.getEmployeeId()), timeCodes))
                 .toList();
     }
 
@@ -62,7 +80,63 @@ public class TimeCardReadService {
                 new ApiException(HttpStatus.NOT_FOUND, "not-found", "Time card not found"));
         Employee employee = employeeRepository.findById(card.getEmployeeId()).orElse(null);
         Map<UUID, TimeCode> timeCodes = loadTimeCodes(List.of(card));
-        return toResponse(card, employee, timeCodes);
+        return toSummary(card, employee, timeCodes);
+    }
+
+    @Transactional(readOnly = true)
+    public TimeCardDtos.TimeCardDetailResponse getDetail(UUID id) {
+        DailyTimeCard card = repository.findById(id).orElseThrow(() ->
+                new ApiException(HttpStatus.NOT_FOUND, "not-found", "Time card not found"));
+        return toDetail(card);
+    }
+
+    /**
+     * Used internally (e.g. by the edit endpoint after recompute) to build the
+     * detail view directly from an already-loaded entity, avoiding a second
+     * lookup.
+     */
+    @Transactional(readOnly = true)
+    public TimeCardDtos.TimeCardDetailResponse toDetail(DailyTimeCard card) {
+        Employee employee = employeeRepository.findById(card.getEmployeeId()).orElse(null);
+        Map<UUID, TimeCode> timeCodes = loadTimeCodes(List.of(card));
+        TimeCardDtos.TimeCardResponse summary = toSummary(card, employee, timeCodes);
+
+        List<PunchEvent> punches = loadPunchesForDay(card.getEmployeeId(), card.getWorkDate());
+        List<TimeCardEdit> edits = editRepository.findByDailyTimeCardIdOrderByEditedAtAsc(card.getId());
+
+        return new TimeCardDtos.TimeCardDetailResponse(
+                summary.id(),
+                summary.employee(),
+                summary.workDate(),
+                summary.status(),
+                summary.resolvedShift(),
+                summary.scheduledStart(),
+                summary.scheduledEnd(),
+                summary.actualStart(),
+                summary.actualEnd(),
+                summary.workedMinutes(),
+                summary.breakMinutes(),
+                summary.overtimeMinutes(),
+                summary.lateMinutes(),
+                summary.earlyOutMinutes(),
+                card.getNotes(),
+                summary.breakdown(),
+                summary.exceptions(),
+                punches.stream().map(TimeCardReadService::toPunchResponse).toList(),
+                edits.stream().map(TimeCardReadService::toEditDto).toList(),
+                summary.computedAt(),
+                summary.version());
+    }
+
+    private List<PunchEvent> loadPunchesForDay(UUID employeeId, LocalDate workDate) {
+        ZoneId zone = ZoneId.of(employeeService.timezoneForEmployee(employeeId));
+        Instant dayStart = workDate.atStartOfDay(zone).toInstant();
+        Instant from = dayStart.minus(Duration.ofHours(12));
+        Instant to = dayStart.plus(Duration.ofHours(36));
+        return punchEventRepository.findProcessedForEmployeeBetween(employeeId, from, to).stream()
+                .filter(p -> ZonedDateTime.ofInstant(p.getEventTimeUtc(), zone)
+                        .toLocalDate().equals(workDate))
+                .toList();
     }
 
     private Map<UUID, Employee> loadEmployees(List<DailyTimeCard> cards) {
@@ -83,9 +157,9 @@ public class TimeCardReadService {
                 .collect(Collectors.toMap(TimeCode::getId, t -> t));
     }
 
-    private TimeCardDtos.TimeCardResponse toResponse(DailyTimeCard card,
-                                                     Employee employee,
-                                                     Map<UUID, TimeCode> timeCodes) {
+    private TimeCardDtos.TimeCardResponse toSummary(DailyTimeCard card,
+                                                    Employee employee,
+                                                    Map<UUID, TimeCode> timeCodes) {
         TimeCardDtos.EmployeeRef empRef = employee == null
                 ? null
                 : new TimeCardDtos.EmployeeRef(employee.getId(), employee.getEmployeeCode(),
@@ -138,5 +212,30 @@ public class TimeCardReadService {
                 exceptions,
                 card.getComputedAt(),
                 card.getVersion());
+    }
+
+    private static TimeCardDtos.PunchEventResponse toPunchResponse(PunchEvent p) {
+        return new TimeCardDtos.PunchEventResponse(
+                p.getId(),
+                p.getEmployeeId(),
+                p.getDeviceId(),
+                p.getIngestionSourceId(),
+                p.getExternalEventId(),
+                p.getEventType(),
+                p.getEventTimeUtc(),
+                p.getStatus(),
+                p.getProcessedAt());
+    }
+
+    private static TimeCardDtos.TimeCardEditDto toEditDto(TimeCardEdit e) {
+        return new TimeCardDtos.TimeCardEditDto(
+                e.getId(),
+                e.getPunchEventId(),
+                e.getChangeType(),
+                e.getBeforeJson(),
+                e.getAfterJson(),
+                e.getReason(),
+                e.getEditedByUserId(),
+                e.getEditedAt());
     }
 }
