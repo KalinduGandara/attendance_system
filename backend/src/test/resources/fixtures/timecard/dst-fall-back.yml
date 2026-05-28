@@ -1,0 +1,16 @@
+name: DST fall-back — 2026-11-01 NY clock repeats 01:00→02:00 once
+zone: America/New_York
+workDate: "2026-11-01"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 0, endMinute: 480 }
+punches:
+  - { type: CHECK_IN,  time: "00:00" }
+  - { type: CHECK_OUT, time: "08:00" }
+expected:
+  status: PRESENT
+  workedMinutes: 540
+  exceptions: []

@@ -1,0 +1,20 @@
+name: Fixed shift with one OT tier — 60 minutes of OT-A
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  overtime:
+    - { sequence: 0, afterMinutes: 480, timeCode: OT_A, maxMinutes: null }
+punches:
+  - { type: CHECK_IN,  time: "09:00" }
+  - { type: CHECK_OUT, time: "18:00" }
+expected:
+  status: PRESENT
+  workedMinutes: 540
+  overtimeMinutes: 60
+  breakdownCodes: [ATTEND, OT_A]
+  exceptions: []

@@ -1,0 +1,16 @@
+name: Flexible shift, employee under required hours
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FLEXIBLE
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 360, endMinute: 1200, requiredMinutes: 480 }
+punches:
+  - { type: CHECK_IN,  time: "10:00" }
+  - { type: CHECK_OUT, time: "15:00" }
+expected:
+  status: PARTIAL
+  workedMinutes: 300
+  exceptions: []

@@ -1,0 +1,16 @@
+name: Cross-midnight shift — 22:00 → 06:00 next day
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 1320, endMinute: 1800 }      # 22:00 → 30:00 (06:00 next day)
+punches:
+  - { type: CHECK_IN,  time: "22:00" }
+  - { type: CHECK_OUT, time: "06:00+1d" }
+expected:
+  status: PRESENT
+  workedMinutes: 480
+  exceptions: []

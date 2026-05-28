@@ -1,6 +1,7 @@
 import { AppShell, Burger, Group, NavLink, ScrollArea, Text, Avatar, Menu, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
+  IconAlertTriangle,
   IconBuildingSkyscraper,
   IconCalendar,
   IconCalendarEvent,
@@ -9,11 +10,14 @@ import {
   IconClockHour4,
   IconCloudUpload,
   IconDeviceMobile,
+  IconFingerprint,
   IconLayoutDashboard,
   IconListDetails,
   IconLogout,
   IconScale,
   IconShieldLock,
+  IconStopwatch,
+  IconUpload,
   IconUserCircle,
   IconUsers,
   IconUsersGroup
@@ -43,6 +47,10 @@ const NAV: NavItem[] = [
   { label: 'Schedule templates', to: '/schedule-templates', icon: IconCalendar, permission: 'schedule.read' },
   { label: 'Assignments', to: '/schedule-assignments', icon: IconCalendarEvent, permission: 'schedule.read' },
   { label: 'Temporary schedules', to: '/temporary-schedules', icon: IconCalendarTime, permission: 'schedule.read' },
+  { label: 'Time cards', to: '/timecards', icon: IconStopwatch, permission: 'timecard.read' },
+  { label: 'Punches', to: '/punches', icon: IconFingerprint, permission: 'timecard.read' },
+  { label: 'Unresolved punches', to: '/punches/unresolved', icon: IconAlertTriangle, permission: 'timecard.read' },
+  { label: 'Ingest punch', to: '/ingest', icon: IconUpload, permission: 'ingestion.write' },
   { label: 'Users', to: '/users', icon: IconShieldLock, permission: 'user.read' }
 ];
 

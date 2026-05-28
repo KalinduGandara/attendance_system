@@ -1,0 +1,11 @@
+name: Day off with stray punches — emits ORPHAN_PUNCH
+zone: America/New_York
+workDate: "2026-05-30"
+scheduledState: OFF
+punches:
+  - { type: CHECK_IN,  time: "10:00" }
+  - { type: CHECK_OUT, time: "12:00" }
+expected:
+  status: OFF
+  workedMinutes: 120
+  exceptions: [ORPHAN_PUNCH]

@@ -1,0 +1,14 @@
+name: Scheduled but no punches and no leave → ABSENT + ABSENT_NO_LEAVE
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+punches: []
+expected:
+  status: ABSENT
+  workedMinutes: 0
+  exceptions: [ABSENT_NO_LEAVE]

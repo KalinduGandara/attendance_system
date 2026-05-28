@@ -1,0 +1,17 @@
+name: Holiday — punches ignored, status is HOLIDAY
+zone: America/New_York
+workDate: "2026-07-04"
+holiday: true
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+punches:
+  - { type: CHECK_IN,  time: "09:00" }
+  - { type: CHECK_OUT, time: "13:00" }
+expected:
+  status: HOLIDAY
+  workedMinutes: 0
+  exceptions: []

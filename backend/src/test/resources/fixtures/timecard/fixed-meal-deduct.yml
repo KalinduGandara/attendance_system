@@ -1,0 +1,19 @@
+name: Fixed shift with 30-minute auto-deduct lunch after 6 hours
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  breaks:
+    - { kind: AUTO_DEDUCT, durationMinutes: 30, afterHoursWorked: 360, paid: false }
+punches:
+  - { type: CHECK_IN,  time: "09:00" }
+  - { type: CHECK_OUT, time: "17:00" }
+expected:
+  status: PRESENT
+  workedMinutes: 450
+  breakMinutes: 30
+  exceptions: []

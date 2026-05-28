@@ -1,0 +1,19 @@
+name: Fixed shift, 5 minutes late but within grace
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  grace:
+    - { kind: LATE_IN, minutes: 10 }
+punches:
+  - { type: CHECK_IN,  time: "09:05" }
+  - { type: CHECK_OUT, time: "17:00" }
+expected:
+  status: PRESENT
+  workedMinutes: 480
+  lateMinutes: 0
+  exceptions: []

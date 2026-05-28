@@ -28,6 +28,10 @@ import { ScheduleTemplatesPage } from '../features/schedule/pages/ScheduleTempla
 import { ScheduleTemplateFormPage } from '../features/schedule/pages/ScheduleTemplateFormPage';
 import { ScheduleAssignmentsPage } from '../features/schedule/pages/ScheduleAssignmentsPage';
 import { TemporarySchedulesPage } from '../features/schedule/pages/TemporarySchedulesPage';
+import { TimeCardsListPage } from '../features/timecard/pages/TimeCardsListPage';
+import { PunchesListPage } from '../features/timecard/pages/PunchesListPage';
+import { UnresolvedPunchesPage } from '../features/timecard/pages/UnresolvedPunchesPage';
+import { IngestPunchPage } from '../features/timecard/pages/IngestPunchPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } }
@@ -210,6 +214,38 @@ export function App() {
                   element={
                     <ProtectedRoute requirePermission="schedule.read">
                       <TemporarySchedulesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/timecards"
+                  element={
+                    <ProtectedRoute requirePermission="timecard.read">
+                      <TimeCardsListPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/punches"
+                  element={
+                    <ProtectedRoute requirePermission="timecard.read">
+                      <PunchesListPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/punches/unresolved"
+                  element={
+                    <ProtectedRoute requirePermission="timecard.read">
+                      <UnresolvedPunchesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/ingest"
+                  element={
+                    <ProtectedRoute requirePermission="ingestion.write">
+                      <IngestPunchPage />
                     </ProtectedRoute>
                   }
                 />

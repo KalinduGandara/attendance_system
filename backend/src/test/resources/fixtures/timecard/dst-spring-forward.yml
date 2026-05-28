@@ -1,0 +1,18 @@
+name: DST spring-forward — 2026-03-08 NY clock jumps 02:00→03:00
+zone: America/New_York
+workDate: "2026-03-08"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 0, endMinute: 480 }
+punches:
+  - { type: CHECK_IN,  time: "00:00" }
+  - { type: CHECK_OUT, time: "08:00" }
+expected:
+  # 08:00 local elapsed on a DST-forward day = 7 wall-clock hours;
+  # the scheduled window also spans 7 wall-hours so status is PRESENT.
+  status: PRESENT
+  workedMinutes: 420
+  exceptions: []

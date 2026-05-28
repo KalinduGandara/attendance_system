@@ -1,0 +1,19 @@
+name: Rounding UP 30 — SHIFT envelope rounds both ends upward
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  rounding:
+    # SHIFT UP 30 → first start 08:51 → 09:00, last end 17:14 → 17:30
+    - { kind: SHIFT, unit: 30, mode: UP }
+punches:
+  - { type: CHECK_IN,  time: "08:51" }
+  - { type: CHECK_OUT, time: "17:14" }
+expected:
+  status: PRESENT
+  workedMinutes: 510
+  exceptions: []

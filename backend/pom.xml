@@ -26,6 +26,7 @@
         <jjwt.version>0.12.6</jjwt.version>
         <mariadb.version>3.4.1</mariadb.version>
         <testcontainers.version>1.20.2</testcontainers.version>
+        <jqwik.version>1.9.0</jqwik.version>
     </properties>
 
     <dependencies>
@@ -109,6 +110,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
@@ -139,6 +145,12 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>mariadb</artifactId>
             <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.jqwik</groupId>
+            <artifactId>jqwik</artifactId>
+            <version>${jqwik.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

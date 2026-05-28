@@ -84,6 +84,30 @@ public class EmployeeService {
                 .orElse(Set.of());
     }
 
+    /**
+     * Resolves the employee's effective timezone for time-card computation.
+     * Priority: employee → department → system default ({@code UTC}).
+     */
+    @Transactional(readOnly = true)
+    public String timezoneForEmployee(UUID employeeId) {
+        Employee e = employeeRepository.findById(employeeId).orElse(null);
+        if (e == null) {
+            return "UTC";
+        }
+        if (e.getTimezone() != null && !e.getTimezone().isBlank()) {
+            return e.getTimezone();
+        }
+        if (e.getDepartmentId() != null) {
+            String tz = departmentRepository.findById(e.getDepartmentId())
+                    .map(Department::getTimezone)
+                    .orElse(null);
+            if (tz != null && !tz.isBlank()) {
+                return tz;
+            }
+        }
+        return "UTC";
+    }
+
     @Transactional
     public EmployeeDtos.EmployeeResponse create(EmployeeDtos.EmployeeRequest req) {
         if (employeeRepository.existsByEmployeeCode(req.employeeCode())) {

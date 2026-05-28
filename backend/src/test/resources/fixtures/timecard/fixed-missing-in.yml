@@ -1,0 +1,15 @@
+name: Fixed shift, only CHECK_OUT — missing in
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+punches:
+  - { type: CHECK_OUT, time: "17:00" }
+expected:
+  status: ABSENT
+  workedMinutes: 0
+  exceptions: [MISSING_PUNCH_IN]

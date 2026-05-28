@@ -1,0 +1,21 @@
+name: Fixed shift with a punch-tracked unpaid break
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  breaks:
+    - { kind: PUNCH_TRACKED, durationMinutes: 0, paid: false }
+punches:
+  - { type: CHECK_IN,  time: "09:00" }
+  - { type: BREAK_START, time: "12:00" }
+  - { type: BREAK_END,   time: "12:30" }
+  - { type: CHECK_OUT, time: "17:00" }
+expected:
+  status: PRESENT
+  workedMinutes: 450
+  breakMinutes: 30
+  exceptions: []

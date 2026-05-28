@@ -1,0 +1,21 @@
+name: Fixed shift, 20 minutes late (beyond 10-minute grace)
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  grace:
+    - { kind: LATE_IN, minutes: 10 }
+punches:
+  - { type: CHECK_IN,  time: "09:20" }
+  - { type: CHECK_OUT, time: "17:00" }
+expected:
+  status: PARTIAL
+  workedMinutes: 460
+  lateMinutes: 20
+  earlyOutMinutes: 0
+  breakdownCodes: [ATTEND]
+  exceptions: [LATE_IN]

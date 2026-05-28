@@ -1,0 +1,22 @@
+name: Rounding NEAREST 15 — punches snap to closest 15-minute boundary
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  rounding:
+    - { kind: PUNCH_IN,  unit: 15, mode: NEAREST }
+    - { kind: PUNCH_OUT, unit: 15, mode: NEAREST }
+  grace:
+    - { kind: LATE_IN, minutes: 20 }
+punches:
+  # 09:07 → 09:00 (nearest 15), 16:55 → 17:00 (nearest 15)
+  - { type: CHECK_IN,  time: "09:07" }
+  - { type: CHECK_OUT, time: "16:55" }
+expected:
+  status: PRESENT
+  workedMinutes: 480
+  exceptions: []

@@ -1,0 +1,19 @@
+name: Fixed shift, leaves 45 minutes early
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  grace:
+    - { kind: EARLY_OUT, minutes: 10 }
+punches:
+  - { type: CHECK_IN,  time: "09:00" }
+  - { type: CHECK_OUT, time: "16:15" }
+expected:
+  status: PARTIAL
+  workedMinutes: 435
+  earlyOutMinutes: 45
+  exceptions: [EARLY_OUT]

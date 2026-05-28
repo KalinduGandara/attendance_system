@@ -1,0 +1,20 @@
+name: Flexible shift, employee exceeds required hours (overtime kicks in)
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FLEXIBLE
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 360, endMinute: 1200, requiredMinutes: 480 }
+  overtime:
+    - { sequence: 0, afterMinutes: 480, timeCode: OT_A, maxMinutes: null }
+punches:
+  - { type: CHECK_IN,  time: "08:00" }
+  - { type: CHECK_OUT, time: "18:00" }
+expected:
+  status: PRESENT
+  workedMinutes: 600
+  overtimeMinutes: 120
+  breakdownCodes: [ATTEND, OT_A]
+  exceptions: []

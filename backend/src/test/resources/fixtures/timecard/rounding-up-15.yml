@@ -1,0 +1,19 @@
+name: Rounding UP 15 — punch-in 09:07 becomes 09:15 (no grace, so 15 min late)
+zone: America/New_York
+workDate: "2026-05-28"
+scheduledState: SCHEDULED
+shift:
+  type: FIXED
+  attendanceTimeCode: ATTEND
+  segments:
+    - { startMinute: 540, endMinute: 1020 }
+  rounding:
+    - { kind: PUNCH_IN, unit: 15, mode: UP }
+punches:
+  - { type: CHECK_IN,  time: "09:07" }
+  - { type: CHECK_OUT, time: "17:00" }
+expected:
+  status: PARTIAL
+  workedMinutes: 465
+  lateMinutes: 15
+  exceptions: [LATE_IN]
