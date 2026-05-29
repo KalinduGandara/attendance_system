@@ -1,0 +1,19 @@
+/* Accessibility: a skip link that is off-screen until it receives keyboard
+   focus, letting keyboard / screen-reader users jump past the nav straight
+   to the page content (WCAG 2.4.1 Bypass Blocks). */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -48px;
+  z-index: 1000;
+  padding: 8px 14px;
+  border-radius: 4px;
+  background: var(--mantine-color-blue-6);
+  color: #fff;
+  text-decoration: none;
+  transition: top 120ms ease-in;
+}
+
+.skip-link:focus {
+  top: 8px;
+}

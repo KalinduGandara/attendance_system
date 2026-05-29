@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -35,6 +36,7 @@ function endOfMonth(d: Date): Date {
 }
 
 export function TimeCardDashboardPage() {
+  const { t } = useTranslation();
   const [view, setView] = useState<ViewMode>('calendar');
   const [employeeId, setEmployeeId] = useState('');
   const [status, setStatus] = useState<string | null>(null);
@@ -77,13 +79,13 @@ export function TimeCardDashboardPage() {
   return (
     <Stack>
       <Group justify="space-between">
-        <Title order={2}>Time cards</Title>
+        <Title order={2}>{t('timecard.title')}</Title>
         <SegmentedControl
           value={view}
           onChange={(v) => setView(v as ViewMode)}
           data={[
-            { value: 'calendar', label: 'Calendar' },
-            { value: 'list', label: 'List' }
+            { value: 'calendar', label: t('timecard.view.calendar') },
+            { value: 'list', label: t('timecard.view.list') }
           ]}
         />
       </Group>
@@ -91,15 +93,15 @@ export function TimeCardDashboardPage() {
       <Paper withBorder p="md">
         <Group mb="sm" align="flex-end">
           <TextInput
-            label="Employee ID"
-            placeholder="Optional"
+            label={t('timecard.filters.employeeId')}
+            placeholder={t('timecard.filters.employeeIdPlaceholder')}
             value={employeeId}
             onChange={(e) => setEmployeeId(e.currentTarget.value)}
             style={{ flex: 1 }}
           />
           <Select
-            label="Status"
-            data={STATUS_OPTS}
+            label={t('timecard.filters.status')}
+            data={STATUS_OPTS.map((s) => ({ value: s, label: t(`timecard.status.${s}`) }))}
             value={status}
             onChange={setStatus}
             clearable
@@ -108,13 +110,19 @@ export function TimeCardDashboardPage() {
           {view === 'list' && (
             <>
               <DateInput
-                label="From"
+                label={t('timecard.filters.from')}
                 value={listFrom}
                 onChange={setListFrom}
                 clearable
                 style={{ width: 160 }}
               />
-              <DateInput label="To" value={listTo} onChange={setListTo} clearable style={{ width: 160 }} />
+              <DateInput
+                label={t('timecard.filters.to')}
+                value={listTo}
+                onChange={setListTo}
+                clearable
+                style={{ width: 160 }}
+              />
             </>
           )}
         </Group>
@@ -227,18 +235,19 @@ interface CardsTableProps {
 }
 
 function CardsTable({ cards, onSelect }: CardsTableProps) {
+  const { t } = useTranslation();
   return (
     <Table striped highlightOnHover>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th>Date</Table.Th>
-          <Table.Th>Employee</Table.Th>
-          <Table.Th>Shift</Table.Th>
-          <Table.Th>Status</Table.Th>
-          <Table.Th>Worked</Table.Th>
-          <Table.Th>OT</Table.Th>
-          <Table.Th>Late</Table.Th>
-          <Table.Th>Exceptions</Table.Th>
+          <Table.Th>{t('timecard.table.date')}</Table.Th>
+          <Table.Th>{t('timecard.table.employee')}</Table.Th>
+          <Table.Th>{t('timecard.table.shift')}</Table.Th>
+          <Table.Th>{t('timecard.table.status')}</Table.Th>
+          <Table.Th>{t('timecard.table.worked')}</Table.Th>
+          <Table.Th>{t('timecard.table.overtime')}</Table.Th>
+          <Table.Th>{t('timecard.table.late')}</Table.Th>
+          <Table.Th>{t('timecard.table.exceptions')}</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -253,7 +262,7 @@ function CardsTable({ cards, onSelect }: CardsTableProps) {
             <Table.Td>{c.resolvedShift?.name ?? '—'}</Table.Td>
             <Table.Td>
               <Badge color={STATUS_COLORS[c.status]} variant="light">
-                {c.status}
+                {t(`timecard.status.${c.status}`)}
               </Badge>
             </Table.Td>
             <Table.Td>{fmtMinutes(c.workedMinutes)}</Table.Td>
@@ -277,7 +286,7 @@ function CardsTable({ cards, onSelect }: CardsTableProps) {
         {cards.length === 0 && (
           <Table.Tr>
             <Table.Td colSpan={8}>
-              <Text c="dimmed">No time cards in this window.</Text>
+              <Text c="dimmed">{t('timecard.empty')}</Text>
             </Table.Td>
           </Table.Tr>
         )}

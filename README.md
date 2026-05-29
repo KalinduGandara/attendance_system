@@ -65,6 +65,27 @@ cd frontend && npm install && npm run dev # http://localhost:5173, proxies /api 
 
 ## Status
 
+**Phase 10 (Hardening) complete — v0.1.0.** Production-readiness pass:
+
+- **Security**: HTTP response headers (CSP, HSTS, `X-Content-Type-Options`,
+  `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`) on every response
+  (`SecurityHeadersTest`); a full OWASP Top-10 review ([docs/security-review.md](docs/security-review.md))
+  with no high/critical findings; OpenAPI schema + Swagger UI disabled in the `prod` profile.
+- **Performance**: index review migration `V12` (punch-event time scan, report-job retention
+  scan, open-exception queue); an in-process recompute p95 guard (`RecomputeBenchmarkTest`,
+  measured p95 ≈ 0.007 ms for the pure engine, well under the 100 ms SLO); a k6 ingestion
+  load-test harness for the 500 ev/s target ([perf/](perf/)).
+- **Observability**: Prometheus registry + domain meters `timecard_recompute_seconds` and
+  `ingestion_punches_total{status}` at `/actuator/prometheus`.
+- **Frontend**: i18n scaffolding (i18next + complete English bundle) with the shell, login,
+  error pages, dashboard, and time-card dashboard migrated to `t()`; accessibility on the
+  critical flows (skip link, `nav`/`main` landmarks, `lang`, ARIA labelling).
+- **Ops**: release checklist ([docs/release-checklist.md](docs/release-checklist.md)),
+  quarterly restore drill + severity/escalation matrix (runbook §5, §11), and a
+  [CHANGELOG](CHANGELOG.md).
+- Tests: **273 passing, 0 failures** (+2 in Phase 10: the security-headers assertion and the
+  recompute p95 guard). Backend `mvn verify`, frontend `typecheck` + `build` all green.
+
 **Phase 9 (System Admin) complete.** Adds:
 
 - Tables (V11 migration): `system_setting` (type-aware org config), `backup_job` (tracks each
@@ -227,4 +248,8 @@ cd frontend && npm install && npm run dev # http://localhost:5173, proxies /api 
 **Phase 0 (Foundation) complete.** End-to-end auth slice, Flyway-managed schema, audit
 infrastructure, OpenAPI/Swagger, Mantine app shell, dev docker-compose, GitHub Actions CI.
 
-Next: Phase 10 — Hardening (perf, security review, accessibility, ops docs) (see [docs/plan.md](docs/plan.md)).
+All 11 phases (0–10) of [docs/plan.md](docs/plan.md) are complete; this is the **v0.1.0**
+release. See the [CHANGELOG](CHANGELOG.md) and [release checklist](docs/release-checklist.md)
+before deploying. Post-v1 follow-ups (CI dependency scanning, full i18n migration of the
+remaining pages, Quartz for clustered scheduling) are tracked in
+[docs/security-review.md](docs/security-review.md) and `src/i18n/README.md`.

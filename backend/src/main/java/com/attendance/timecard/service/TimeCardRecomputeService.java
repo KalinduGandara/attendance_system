@@ -27,6 +27,8 @@ import com.attendance.timecard.repository.DailyTimeCardRepository;
 import com.attendance.timecard.repository.PunchEventRepository;
 import com.attendance.timecode.domain.TimeCode;
 import com.attendance.timecode.repository.TimeCodeRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +64,7 @@ public class TimeCardRecomputeService {
     private final ExceptionEventService exceptionEventService;
     private final LeaveRequestRepository leaveRequestRepository;
     private final LeaveTypeRepository leaveTypeRepository;
+    private final Timer recomputeTimer;
 
     public TimeCardRecomputeService(ScheduleResolver scheduleResolver,
                                     ShiftService shiftService,
@@ -72,7 +75,8 @@ public class TimeCardRecomputeService {
                                     DailyTimeCardRepository dailyTimeCardRepository,
                                     ExceptionEventService exceptionEventService,
                                     LeaveRequestRepository leaveRequestRepository,
-                                    LeaveTypeRepository leaveTypeRepository) {
+                                    LeaveTypeRepository leaveTypeRepository,
+                                    MeterRegistry meterRegistry) {
         this.scheduleResolver = scheduleResolver;
         this.shiftService = shiftService;
         this.timeCodeRepository = timeCodeRepository;
@@ -83,10 +87,24 @@ public class TimeCardRecomputeService {
         this.exceptionEventService = exceptionEventService;
         this.leaveRequestRepository = leaveRequestRepository;
         this.leaveTypeRepository = leaveTypeRepository;
+        // Backs the runbook's `timecard_recompute_seconds` SLO (p95 < 100ms).
+        this.recomputeTimer = Timer.builder("timecard.recompute")
+                .description("Wall-clock time to recompute one (employee, day) time card")
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .register(meterRegistry);
     }
 
     @Transactional
     public DailyTimeCard recompute(UUID employeeId, LocalDate workDate) {
+        Timer.Sample sample = Timer.start();
+        try {
+            return doRecompute(employeeId, workDate);
+        } finally {
+            sample.stop(recomputeTimer);
+        }
+    }
+
+    private DailyTimeCard doRecompute(UUID employeeId, LocalDate workDate) {
         ZoneId zone = ZoneId.of(employeeService.timezoneForEmployee(employeeId));
 
         // Window for relevant punches: the calendar day in the employee's tz,

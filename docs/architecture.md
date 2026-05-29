@@ -181,7 +181,10 @@ For a floating shift, the first `CHECK_IN` time is matched against the configure
 - **JWT**: 15-min access token (in memory on client), 7-day refresh token (HttpOnly secure cookie).
 - **Refresh token rotation** with reuse detection — old tokens are invalidated on refresh; if a revoked token is presented, the whole token family is invalidated.
 - **Password hashing**: BCrypt cost 12.
-- **Login throttling**: bucket4j on `/api/v1/auth/login` (5 attempts / 15 min / IP+username).
+- **Login throttling**: per-account lockout — `AuthService` increments `failed_login_count`
+  and sets `locked_until`; a locked account is rejected before the password check. IP/edge
+  rate limiting is delegated to the reverse proxy (Nginx `limit_req`, see runbook §11 and the
+  release checklist). (Earlier drafts named bucket4j; the shipped control is account lockout.)
 
 ### Authorization
 - **Roles**: `ADMIN`, `HR_MANAGER`, `MANAGER`, `EMPLOYEE`.
@@ -197,7 +200,13 @@ For a floating shift, the first `CHECK_IN` time is matched against the configure
 ### Transport & CORS
 - HTTPS in production (HTTP 3000 / HTTPS 3002 per SRS, configurable).
 - CORS locked to frontend origin via `application.yml` allow-list.
-- Security headers: HSTS, X-Content-Type-Options, X-Frame-Options DENY, CSP.
+- Security headers (Phase 10, `SecurityConfig`, asserted by `SecurityHeadersTest`):
+  `Content-Security-Policy` (`default-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`,
+  `base-uri 'self'`), HSTS (1 yr, includeSubDomains, preload, HTTPS only),
+  `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`,
+  `Referrer-Policy: strict-origin-when-cross-origin`, and a restrictive `Permissions-Policy`.
+- The OpenAPI schema + Swagger UI are public in dev but **disabled in the `prod` profile**.
+- Full OWASP Top-10 review: [security-review.md](security-review.md).
 
 ## 8. Cross-Cutting Concerns
 
@@ -222,10 +231,14 @@ For a floating shift, the first `CHECK_IN` time is matched against the configure
 - Job state persisted in `report_job` / `backup_job` (so a restart doesn't lose work).
 
 ### 8.4 Observability
-- Spring Boot Actuator endpoints (`/actuator/health`, `/actuator/metrics`, behind admin auth).
-- Micrometer → Prometheus-compatible metrics.
+- Spring Boot Actuator: `/actuator/health` + `/actuator/info` are public; everything else
+  (`/actuator/metrics`, `/actuator/prometheus`, …) requires `system.admin`.
+- Micrometer + a Prometheus registry (Phase 10) expose `/actuator/prometheus`, including the
+  domain SLO meters `timecard_recompute_seconds` (Timer, p50/p95/p99) and
+  `ingestion_punches_total{status=accepted|duplicate|unresolved}` (Counter).
 - Structured JSON logs (Logback + Logstash encoder).
 - Trace IDs propagated via `X-Request-Id`.
+- Alert thresholds and the metric-to-alert mapping live in runbook §7.
 
 ### 8.5 Validation
 - Bean Validation (`jakarta.validation`) on every request DTO.
@@ -271,6 +284,16 @@ src/
 - **Server state** → TanStack Query (cache, refetch, mutations, optimistic updates).
 - **Client state** → Zustand for cross-route stores (auth user, theme).
 - **Form state** → React Hook Form + Zod for validation.
+
+### i18n & accessibility (Phase 10)
+- **i18n scaffolding**: `i18next` + `react-i18next` initialized in `src/i18n` with a complete
+  English bundle (`en.json`). User-facing strings resolve through `t('area.key')`; adding a
+  locale is a new resource file with no component changes. The shell/nav, login, error pages,
+  dashboard, and the time-card dashboard are migrated; remaining pages migrate incrementally
+  (see `src/i18n/README.md`). New code must use `t()`.
+- **Accessibility**: document `lang`, a skip-to-content link, `nav`/`main` landmarks, accessible
+  Mantine form labels, and `role="alert"` on the login error target — WCAG 2.1 AA on the
+  critical flows (login, time-card view, leave).
 
 ### Auth flow
 1. `POST /auth/login` → receive access token (in JSON) + refresh cookie set by server.

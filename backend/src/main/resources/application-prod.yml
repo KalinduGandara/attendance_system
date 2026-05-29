@@ -11,6 +11,16 @@ attendance:
   cookie:
     secure: true
 
+# Hardening (Phase 10): the API contract and interactive explorer are dev/ops
+# aids, not a production surface. Disable both in prod so the schema isn't
+# enumerable by anonymous callers (security-review A05). The permitAll matchers
+# for these paths in SecurityConfig then resolve to 404s.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 logging:
   level:
     root: INFO

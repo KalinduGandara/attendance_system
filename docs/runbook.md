@@ -142,6 +142,26 @@ Or via the Backups admin page.
 3. Start the stack.
 4. Force a recompute of the last N days via admin endpoint (`POST /api/v1/admin/recompute?from=...&to=...`).
 
+### Restore drill (quarterly)
+A backup you have never restored is a hope, not a backup. Run this on a schedule
+(quarterly) and after any change to the backup job:
+
+1. Pick the **most recent** `DONE` backup file (don't hand-pick a known-good one).
+2. Stand up an isolated staging stack:
+   ```
+   docker compose -f docker-compose.staging.yml up -d mariadb
+   docker exec -i staging-mariadb mariadb -u root -p attendance < <dump.sql>
+   ```
+3. Start the backend against staging; run the §4 smoke checklist plus:
+   - row counts on `employee`, `punch_event`, `daily_time_card` look sane;
+   - a spot-checked time card matches what prod showed.
+4. **Record the result**: backup filename, dump size, restore wall-clock time,
+   and pass/fail, in the release/ops log. Time-to-restore is your RTO evidence.
+5. Tear down staging (`docker compose -f docker-compose.staging.yml down -v`).
+
+If a restore fails: treat it as a Sev-2 incident (see §11), fix the backup job,
+and re-run the drill before closing.
+
 ## 6. Common Operations
 
 ### Reset an admin password
@@ -236,3 +256,33 @@ POST /api/v1/admin/recompute
 - Every manual DB change must be paired with an `audit_event` insert describing actor/reason.
 - Use the staging environment to reproduce before fixing in prod.
 - After any incident: post-mortem, file a follow-up issue if a runbook entry is missing or wrong.
+
+## 11. Severity & Escalation
+
+Classify first, then escalate. Severity is about **user/business impact**, not
+how hard the fix is.
+
+| Sev | Definition | Examples | First response | Escalate to |
+|---|---|---|---|---|
+| **Sev-1** | System down or data at risk for all users | API down, DB unreachable, auth fully broken, suspected breach, **a restore that fails** | Page on-call immediately; open incident channel | Eng lead → Eng manager → (breach) Security + management |
+| **Sev-2** | Major feature broken or degraded; workaround exists | Ingestion rejecting all events, recompute backlog, backups failing, reports failing | On-call within business hours; notify owner | Eng lead |
+| **Sev-3** | Minor/cosmetic; limited scope | A single wrong time card, one report off, UI glitch | Ticket; next working day | — |
+
+### Escalation flow
+1. **Detect** — alert (runbook §7) or user report.
+2. **Classify** — assign a severity from the table.
+3. **Communicate** — Sev-1/2: open the incident channel, post a one-line status
+   and the suspected blast radius; update at least every 30 min for Sev-1.
+4. **Mitigate** — apply the matching §8 playbook; prefer mitigation (restore,
+   rollback, disable a feature) over a risky live fix.
+5. **Resolve & confirm** — verify with the affected user / smoke test.
+6. **Follow up** — Sev-1/2 require a written post-mortem within 2 business days:
+   timeline, root cause, what masked detection, action items (with owners).
+
+### Security incident specifics
+- Suspected JWT signing-key compromise → rotate `JWT_SECRET` (§6) **and**
+  invalidate refresh-token families; force re-auth.
+- Suspected credential/API-key leak → rotate the affected ingestion source key
+  (§6) and review `audit_event` for the actor's recent actions.
+- Preserve logs and `audit_event` rows before any cleanup — they are the
+  forensic trail. Do **not** run a retention purge during an active incident.

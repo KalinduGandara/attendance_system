@@ -1,0 +1,116 @@
+{
+  "app": {
+    "name": "Attendance"
+  },
+  "common": {
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "retry": "Retry",
+      "backToDashboard": "Back to dashboard",
+      "signIn": "Sign in",
+      "signOut": "Sign out"
+    },
+    "loading": "Loading…",
+    "noResults": "No results.",
+    "dash": "—"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "employees": "Employees",
+    "departments": "Departments",
+    "groups": "Groups",
+    "customFields": "Custom fields",
+    "holidays": "Holidays",
+    "devices": "Devices",
+    "ingestionSources": "Ingestion sources",
+    "timeCodes": "Time codes",
+    "shifts": "Shifts",
+    "scheduleTemplates": "Schedule templates",
+    "assignments": "Assignments",
+    "temporarySchedules": "Temporary schedules",
+    "timeCards": "Time cards",
+    "punches": "Punches",
+    "unresolvedPunches": "Unresolved punches",
+    "ingestPunch": "Ingest punch",
+    "leaveTypes": "Leave types",
+    "leaveRequests": "Leave requests",
+    "leaveApprovals": "Leave approvals",
+    "exceptions": "Exceptions",
+    "reports": "Reports",
+    "users": "Users",
+    "auditLog": "Audit log",
+    "backups": "Backups",
+    "retention": "Retention",
+    "systemSettings": "System settings",
+    "primary": "Primary navigation",
+    "skipToContent": "Skip to main content"
+  },
+  "auth": {
+    "title": "Sign in",
+    "username": "Username",
+    "password": "Password",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required",
+    "genericError": "Unable to sign in. Please try again."
+  },
+  "errors": {
+    "forbidden": {
+      "code": "403",
+      "message": "You don't have permission to access this page."
+    },
+    "notFound": {
+      "code": "404",
+      "message": "The page you requested does not exist."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}.",
+    "welcomeNoName": "Welcome.",
+    "subtitle": "Time & attendance overview.",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "permissionsGranted": "{{count}} granted"
+  },
+  "timecard": {
+    "title": "Time cards",
+    "view": {
+      "calendar": "Calendar",
+      "list": "List"
+    },
+    "filters": {
+      "employeeId": "Employee ID",
+      "employeeIdPlaceholder": "Optional",
+      "status": "Status",
+      "from": "From",
+      "to": "To"
+    },
+    "table": {
+      "date": "Date",
+      "employee": "Employee",
+      "shift": "Shift",
+      "status": "Status",
+      "worked": "Worked",
+      "overtime": "OT",
+      "late": "Late",
+      "exceptions": "Exceptions"
+    },
+    "status": {
+      "PRESENT": "Present",
+      "ABSENT": "Absent",
+      "LEAVE": "Leave",
+      "HOLIDAY": "Holiday",
+      "OFF": "Off",
+      "PARTIAL": "Partial"
+    },
+    "empty": "No time cards for this range."
+  },
+  "leave": {
+    "title": "Leave",
+    "request": {
+      "heading": "Request leave",
+      "submit": "Submit request"
+    }
+  }
+}

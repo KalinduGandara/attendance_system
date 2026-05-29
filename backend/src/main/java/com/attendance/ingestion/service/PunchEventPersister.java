@@ -10,6 +10,7 @@ import com.attendance.timecard.domain.PunchEventStatus;
 import com.attendance.timecard.domain.PunchEventType;
 import com.attendance.timecard.repository.PunchEventRepository;
 import com.attendance.timecard.service.PunchEventIngestedEvent;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,13 +34,21 @@ public class PunchEventPersister {
     private final PunchEventRepository repository;
     private final CredentialResolutionService credentialResolutionService;
     private final ApplicationEventPublisher eventPublisher;
+    private final MeterRegistry meterRegistry;
 
     public PunchEventPersister(PunchEventRepository repository,
                                CredentialResolutionService credentialResolutionService,
-                               ApplicationEventPublisher eventPublisher) {
+                               ApplicationEventPublisher eventPublisher,
+                               MeterRegistry meterRegistry) {
         this.repository = repository;
         this.credentialResolutionService = credentialResolutionService;
         this.eventPublisher = eventPublisher;
+        this.meterRegistry = meterRegistry;
+    }
+
+    /** Backs the runbook's `ingestion_punches_total{status=...}` counter. */
+    private void count(String status) {
+        meterRegistry.counter("ingestion.punches", "status", status).increment();
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -55,6 +64,7 @@ public class PunchEventPersister {
         Optional<PunchEvent> existing = repository
                 .findByIngestionSourceIdAndExternalEventId(sourceId, externalEventId);
         if (existing.isPresent()) {
+            count("duplicate");
             return new EventResult(externalEventId, IngestionStatus.DUPLICATE.name(),
                     existing.get().getId(), null);
         }
@@ -88,10 +98,12 @@ public class PunchEventPersister {
 
         PunchEvent saved = repository.saveAndFlush(entity);
         if (saved.getStatus() == PunchEventStatus.PROCESSED) {
+            count("accepted");
             eventPublisher.publishEvent(new PunchEventIngestedEvent(
                     saved.getId(), saved.getEmployeeId(), saved.getEventTimeUtc()));
             return new EventResult(externalEventId, IngestionStatus.ACCEPTED.name(), saved.getId(), null);
         }
+        count("unresolved");
         return new EventResult(externalEventId, IngestionStatus.UNRESOLVED_CREDENTIAL.name(),
                 saved.getId(), "No matching active credential");
     }

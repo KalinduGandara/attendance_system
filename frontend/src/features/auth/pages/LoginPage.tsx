@@ -2,6 +2,7 @@ import { Alert, Button, Card, Center, PasswordInput, Stack, TextInput, Title } f
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../../../lib/authApi';
 import { useAuthStore } from '../../../lib/authStore';
 import type { ProblemDetail } from '../../../lib/types';
@@ -14,6 +15,7 @@ interface LocationState {
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const setSession = useAuthStore((s) => s.setSession);
   const [submitting, setSubmitting] = useState(false);
@@ -22,8 +24,8 @@ export function LoginPage() {
   const form = useForm({
     initialValues: { username: '', password: '' },
     validate: {
-      username: (v) => (v.trim().length === 0 ? 'Username is required' : null),
-      password: (v) => (v.length === 0 ? 'Password is required' : null)
+      username: (v) => (v.trim().length === 0 ? t('auth.usernameRequired') : null),
+      password: (v) => (v.length === 0 ? t('auth.passwordRequired') : null)
     }
   });
 
@@ -42,7 +44,7 @@ export function LoginPage() {
       navigate(from, { replace: true });
     } catch (err) {
       const ax = err as AxiosError<ProblemDetail>;
-      setError(ax.response?.data?.detail ?? 'Unable to sign in. Please try again.');
+      setError(ax.response?.data?.detail ?? t('auth.genericError'));
     } finally {
       setSubmitting(false);
     }
@@ -53,28 +55,28 @@ export function LoginPage() {
       <Card withBorder shadow="sm" radius="md" p="xl" w={{ base: '100%', sm: 420 }}>
         <Stack>
           <Title order={2} ta="center">
-            Sign in
+            {t('auth.title')}
           </Title>
           {error && (
-            <Alert color="red" variant="light">
+            <Alert color="red" variant="light" role="alert">
               {error}
             </Alert>
           )}
           <form onSubmit={form.onSubmit(onSubmit)}>
             <Stack>
               <TextInput
-                label="Username"
+                label={t('auth.username')}
                 autoComplete="username"
                 autoFocus
                 {...form.getInputProps('username')}
               />
               <PasswordInput
-                label="Password"
+                label={t('auth.password')}
                 autoComplete="current-password"
                 {...form.getInputProps('password')}
               />
               <Button type="submit" loading={submitting} fullWidth>
-                Sign in
+                {t('common.actions.signIn')}
               </Button>
             </Stack>
           </form>

@@ -606,3 +606,13 @@ audit_event >─ user (actor)
 | `temporary_schedule` | `(employee_id, start_date)` | override lookup |
 | `audit_event` | `(occurred_at)`, `(entity_type, entity_id)` | timeline + entity history |
 | `exception_event` | `(status, severity)`, `(employee_id, work_date)` | queue + history |
+| `punch_event` | `(event_time_utc)` *(V12)* | retention purge + time-only punch search |
+| `report_job` | `(created_at)` *(V12)* | retention purge scan/order |
+| `exception_event` | `(status, work_date)` *(V12)* | open-exceptions queue (status + date order) |
+
+**V12 (Phase 10) index review.** The three `*(V12)*` rows above were added after
+reviewing the repository query patterns against the indexes from earlier phases:
+the retention-purge scans (`PunchEventRepository.findIdsOlderThan` on
+`event_time_utc`, `ReportJobRepository.findIdsOlderThan` on `created_at`) and the
+Exceptions queue's default "open, newest first" view hit no covering index. The
+recompute hot paths were already covered and were left unchanged.
