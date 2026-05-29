@@ -32,6 +32,10 @@ import { TimeCardDashboardPage } from '../features/timecard/pages/TimeCardDashbo
 import { PunchesListPage } from '../features/timecard/pages/PunchesListPage';
 import { UnresolvedPunchesPage } from '../features/timecard/pages/UnresolvedPunchesPage';
 import { IngestPunchPage } from '../features/timecard/pages/IngestPunchPage';
+import { LeaveTypesPage } from '../features/leave/pages/LeaveTypesPage';
+import { EmployeeLeavePage } from '../features/leave/pages/EmployeeLeavePage';
+import { LeaveApprovalsPage } from '../features/leave/pages/LeaveApprovalsPage';
+import { ExceptionsPage } from '../features/exception/pages/ExceptionsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } }
@@ -246,6 +250,46 @@ export function App() {
                   element={
                     <ProtectedRoute requirePermission="ingestion.write">
                       <IngestPunchPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/leave-types"
+                  element={
+                    <ProtectedRoute requirePermission="leave.read">
+                      <LeaveTypesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/leave-requests"
+                  element={
+                    <ProtectedRoute requirePermission="leave.read">
+                      <EmployeeLeavePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/leave-requests/new"
+                  element={
+                    <ProtectedRoute requirePermission="leave.read">
+                      <EmployeeLeavePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/leave-approvals"
+                  element={
+                    <ProtectedRoute requirePermission="leave.approve">
+                      <LeaveApprovalsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/exceptions"
+                  element={
+                    <ProtectedRoute requirePermission="exception.read">
+                      <ExceptionsPage />
                     </ProtectedRoute>
                   }
                 />

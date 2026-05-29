@@ -2,6 +2,10 @@ package com.attendance.timecard.service;
 
 import com.attendance.exception.service.ExceptionEventService;
 import com.attendance.exception.service.ExceptionEventService.EmittedException;
+import com.attendance.leave.domain.LeaveRequest;
+import com.attendance.leave.domain.LeaveType;
+import com.attendance.leave.repository.LeaveRequestRepository;
+import com.attendance.leave.repository.LeaveTypeRepository;
 import com.attendance.organization.repository.HolidayRepository;
 import com.attendance.organization.service.EmployeeService;
 import com.attendance.schedule.service.ResolvedSchedule;
@@ -16,6 +20,7 @@ import com.attendance.timecard.engine.EngineInputs;
 import com.attendance.timecard.engine.EngineOutput;
 import com.attendance.timecard.engine.FloatingShiftSelector;
 import com.attendance.timecard.engine.TimeCardCalculator;
+import com.attendance.timecard.engine.snapshots.LeaveSnapshot;
 import com.attendance.timecard.engine.snapshots.PunchSnapshot;
 import com.attendance.timecard.engine.snapshots.ShiftSnapshot;
 import com.attendance.timecard.repository.DailyTimeCardRepository;
@@ -55,6 +60,8 @@ public class TimeCardRecomputeService {
     private final PunchEventRepository punchEventRepository;
     private final DailyTimeCardRepository dailyTimeCardRepository;
     private final ExceptionEventService exceptionEventService;
+    private final LeaveRequestRepository leaveRequestRepository;
+    private final LeaveTypeRepository leaveTypeRepository;
 
     public TimeCardRecomputeService(ScheduleResolver scheduleResolver,
                                     ShiftService shiftService,
@@ -63,7 +70,9 @@ public class TimeCardRecomputeService {
                                     EmployeeService employeeService,
                                     PunchEventRepository punchEventRepository,
                                     DailyTimeCardRepository dailyTimeCardRepository,
-                                    ExceptionEventService exceptionEventService) {
+                                    ExceptionEventService exceptionEventService,
+                                    LeaveRequestRepository leaveRequestRepository,
+                                    LeaveTypeRepository leaveTypeRepository) {
         this.scheduleResolver = scheduleResolver;
         this.shiftService = shiftService;
         this.timeCodeRepository = timeCodeRepository;
@@ -72,6 +81,8 @@ public class TimeCardRecomputeService {
         this.punchEventRepository = punchEventRepository;
         this.dailyTimeCardRepository = dailyTimeCardRepository;
         this.exceptionEventService = exceptionEventService;
+        this.leaveRequestRepository = leaveRequestRepository;
+        this.leaveTypeRepository = leaveTypeRepository;
     }
 
     @Transactional
@@ -103,11 +114,12 @@ public class TimeCardRecomputeService {
 
         boolean holiday = isHoliday(workDate);
         Map<UUID, BigDecimal> rates = loadRates();
+        LeaveSnapshot leave = resolveLeave(employeeId, workDate);
 
         EngineInputs inputs = new EngineInputs(
                 employeeId, workDate, zone, state, shift,
                 EngineSnapshotMapper.toPunchSnapshots(dayPunches),
-                holiday, null, rates);
+                holiday, leave, rates);
 
         EngineOutput output = TimeCardCalculator.compute(inputs);
         DailyTimeCard saved = upsert(employeeId, workDate, output);
@@ -151,6 +163,27 @@ public class TimeCardRecomputeService {
                     }
                     return h.getHolidayDate().equals(workDate);
                 });
+    }
+
+    private LeaveSnapshot resolveLeave(UUID employeeId, LocalDate workDate) {
+        List<LeaveRequest> approved = leaveRequestRepository.findApprovedCovering(employeeId, workDate);
+        if (approved.isEmpty()) {
+            return null;
+        }
+        // If multiple leaves cover the day (shouldn't happen in practice), prefer
+        // the longest-running one; ordering is stable across recomputes.
+        LeaveRequest r = approved.stream()
+                .min((a, b) -> {
+                    long la = java.time.temporal.ChronoUnit.DAYS.between(a.getStartDate(), a.getEndDate());
+                    long lb = java.time.temporal.ChronoUnit.DAYS.between(b.getStartDate(), b.getEndDate());
+                    return Long.compare(lb, la);
+                })
+                .orElseThrow();
+        LeaveType type = leaveTypeRepository.findById(r.getLeaveTypeId()).orElse(null);
+        if (type == null) {
+            return null;
+        }
+        return new LeaveSnapshot(type.getTimeCodeId(), r.isHalfDay());
     }
 
     private Map<UUID, BigDecimal> loadRates() {

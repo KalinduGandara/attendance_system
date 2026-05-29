@@ -48,8 +48,11 @@ public final class TimeCardCalculator {
             return EngineOutputs.empty(DailyTimeCardStatus.OFF, null);
         }
 
-        // 3. Scheduled but no punches → ABSENT.
+        // 3. Scheduled but no punches → ABSENT (unless a half-day leave covers part of the day).
         if (in.scheduledState() == EngineInputs.ScheduledState.SCHEDULED && in.punches().isEmpty()) {
+            if (in.leave() != null && in.leave().halfDay()) {
+                return halfDayLeaveOnlyOutput(in);
+            }
             return absentOutput(in);
         }
 
@@ -179,6 +182,29 @@ public final class TimeCardCalculator {
                 status,
                 in.shift() == null ? null : in.shift().id(),
                 null, null,
+                null, null,
+                0, 0, 0, 0, 0,
+                breakdowns,
+                List.of(),
+                null);
+    }
+
+    private static EngineOutput halfDayLeaveOnlyOutput(EngineInputs in) {
+        ScheduleAnchor.Window window = in.shift() == null
+                ? null
+                : ScheduleAnchor.resolve(in.workDate(), in.zone(), in.shift()).orElse(null);
+        int halfDay = window == null ? 240 : window.durationMinutes() / 2;
+        List<EngineOutput.BreakdownLine> breakdowns = new ArrayList<>();
+        if (in.leave().leaveTypeTimeCodeId() != null && halfDay > 0) {
+            int rated = RatedMinutesCalculator.rated(halfDay, in.leave().leaveTypeTimeCodeId(),
+                    in.timeCodeRates());
+            breakdowns.add(new BreakdownLine(in.leave().leaveTypeTimeCodeId(), halfDay, rated, 0));
+        }
+        return new EngineOutput(
+                DailyTimeCardStatus.LEAVE,
+                in.shift() == null ? null : in.shift().id(),
+                window == null ? null : window.start(),
+                window == null ? null : window.end(),
                 null, null,
                 0, 0, 0, 0, 0,
                 breakdowns,

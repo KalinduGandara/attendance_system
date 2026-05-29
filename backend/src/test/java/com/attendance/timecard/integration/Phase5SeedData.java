@@ -32,6 +32,9 @@ import com.attendance.timecode.domain.TimeCode;
 import com.attendance.timecode.domain.TimeCodeCategory;
 import com.attendance.timecode.repository.TimeCodeRepository;
 import com.attendance.exception.repository.ExceptionEventRepository;
+import com.attendance.leave.repository.LeaveBalanceRepository;
+import com.attendance.leave.repository.LeaveRequestRepository;
+import com.attendance.leave.repository.LeaveTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -67,6 +70,9 @@ public class Phase5SeedData {
     @Autowired DailyTimeCardRepository dailyTimeCardRepository;
     @Autowired PunchEventRepository punchEventRepository;
     @Autowired ExceptionEventRepository exceptionEventRepository;
+    @Autowired LeaveRequestRepository leaveRequestRepository;
+    @Autowired LeaveBalanceRepository leaveBalanceRepository;
+    @Autowired LeaveTypeRepository leaveTypeRepository;
 
     public Seeded seedAll() {
         clear();
@@ -123,6 +129,9 @@ public class Phase5SeedData {
     }
 
     public void clear() {
+        leaveRequestRepository.deleteAll();
+        leaveBalanceRepository.deleteAll();
+        leaveTypeRepository.deleteAll();
         exceptionEventRepository.deleteAll();
         dailyTimeCardRepository.deleteAll();
         punchEventRepository.deleteAll();

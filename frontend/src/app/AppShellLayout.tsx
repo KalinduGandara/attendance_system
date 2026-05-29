@@ -1,8 +1,11 @@
 import { AppShell, Burger, Group, NavLink, ScrollArea, Text, Avatar, Menu, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
+  IconAlertCircle,
   IconAlertTriangle,
+  IconBeach,
   IconBuildingSkyscraper,
+  IconChecks,
   IconCalendar,
   IconCalendarEvent,
   IconCalendarStats,
@@ -51,6 +54,10 @@ const NAV: NavItem[] = [
   { label: 'Punches', to: '/punches', icon: IconFingerprint, permission: 'timecard.read' },
   { label: 'Unresolved punches', to: '/punches/unresolved', icon: IconAlertTriangle, permission: 'timecard.read' },
   { label: 'Ingest punch', to: '/ingest', icon: IconUpload, permission: 'ingestion.write' },
+  { label: 'Leave types', to: '/leave-types', icon: IconBeach, permission: 'leave.read' },
+  { label: 'Leave requests', to: '/leave-requests', icon: IconBeach, permission: 'leave.read' },
+  { label: 'Leave approvals', to: '/leave-approvals', icon: IconChecks, permission: 'leave.approve' },
+  { label: 'Exceptions', to: '/exceptions', icon: IconAlertCircle, permission: 'exception.read' },
   { label: 'Users', to: '/users', icon: IconShieldLock, permission: 'user.read' }
 ];
 
