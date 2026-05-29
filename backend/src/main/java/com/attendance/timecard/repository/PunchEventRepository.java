@@ -42,4 +42,15 @@ public interface PunchEventRepository extends JpaRepository<PunchEvent, UUID> {
                             @Param("from") Instant from,
                             @Param("to") Instant to,
                             Pageable pageable);
+
+    @Query("""
+            SELECT p FROM PunchEvent p
+             WHERE p.employeeId = :employeeId
+               AND p.eventTimeUtc >= :from
+               AND p.eventTimeUtc <  :to
+             ORDER BY p.eventTimeUtc ASC, p.id ASC
+            """)
+    List<PunchEvent> findForEmployeeBetween(@Param("employeeId") UUID employeeId,
+                                            @Param("from") Instant from,
+                                            @Param("to") Instant to);
 }

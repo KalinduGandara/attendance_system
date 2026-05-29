@@ -17,6 +17,7 @@ import {
   IconLayoutDashboard,
   IconListDetails,
   IconLogout,
+  IconReportAnalytics,
   IconScale,
   IconShieldLock,
   IconStopwatch,
@@ -58,6 +59,7 @@ const NAV: NavItem[] = [
   { label: 'Leave requests', to: '/leave-requests', icon: IconBeach, permission: 'leave.read' },
   { label: 'Leave approvals', to: '/leave-approvals', icon: IconChecks, permission: 'leave.approve' },
   { label: 'Exceptions', to: '/exceptions', icon: IconAlertCircle, permission: 'exception.read' },
+  { label: 'Reports', to: '/reports', icon: IconReportAnalytics, permission: 'report.run' },
   { label: 'Users', to: '/users', icon: IconShieldLock, permission: 'user.read' }
 ];
 

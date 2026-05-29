@@ -36,6 +36,7 @@ import { LeaveTypesPage } from '../features/leave/pages/LeaveTypesPage';
 import { EmployeeLeavePage } from '../features/leave/pages/EmployeeLeavePage';
 import { LeaveApprovalsPage } from '../features/leave/pages/LeaveApprovalsPage';
 import { ExceptionsPage } from '../features/exception/pages/ExceptionsPage';
+import { ReportsPage } from '../features/report/pages/ReportsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } }
@@ -282,6 +283,14 @@ export function App() {
                   element={
                     <ProtectedRoute requirePermission="leave.approve">
                       <LeaveApprovalsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports"
+                  element={
+                    <ProtectedRoute requirePermission="report.run">
+                      <ReportsPage />
                     </ProtectedRoute>
                   }
                 />

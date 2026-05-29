@@ -65,6 +65,25 @@ cd frontend && npm install && npm run dev # http://localhost:5173, proxies /api 
 
 ## Status
 
+**Phase 8 (Reporting) complete.** Adds:
+
+- Table (V10 migration): `report_job` — tracks asynchronous report generation; all state
+  (type, parameters JSON, status, file path, row count) is persisted so a job survives a
+  backend restart.
+- `ReportExporterPort` + `CsvExporter` (RFC 4180, CRLF, no BOM) writing to the `reports/`
+  directory; one `ReportBuilder` per SRS §3.6 report type: Daily, Daily Summary, Individual,
+  Individual Summary, Leave, Exception, Modified Punch Log History.
+- REST `POST /reports` (202 + queued job), `GET /reports` (recent jobs), `GET /reports/{id}`
+  (status + download URL when `DONE`), `GET /reports/{id}/download` (streams the CSV). All
+  gated by `report.run`. Generation runs on a dedicated `@Async("reportExecutor")` pool.
+- Reports support an employee / department / group scope, a date window, a status filter
+  (Leave & Exception), selectable employee custom-field columns, and best-effort sort overrides.
+- Frontend Reports page: pick type → parameter form → run → poll status → download, plus a
+  recent-jobs table and per-user saved parameter presets (localStorage; Phase 9 promotes to
+  org-wide).
+- Tests (245 passing total, +13 in Phase 8): a golden-fixture suite comparing each of the seven
+  reports byte-for-byte against a committed CSV, plus controller security gates.
+
 **Phase 2 (Devices, Credentials, Ingestion Sources) complete.** Adds:
 
 - Tables (V5 migration): `device`, `ingestion_source`, `device_ingestion_source`, `credential`.

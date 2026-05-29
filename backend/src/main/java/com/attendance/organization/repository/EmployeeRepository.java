@@ -42,4 +42,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     @Query("SELECT e.id FROM Employee e WHERE e.status = com.attendance.organization.domain.EmployeeStatus.ACTIVE")
     List<UUID> findActiveEmployeeIds();
+
+    List<Employee> findByDepartmentId(UUID departmentId);
+
+    @Query("SELECT e FROM Employee e JOIN e.groups g WHERE g.id = :groupId")
+    List<Employee> findByGroupId(@Param("groupId") UUID groupId);
 }

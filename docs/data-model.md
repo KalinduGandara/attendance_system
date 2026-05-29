@@ -473,8 +473,8 @@ Index on `(employee_id, work_date)`, `(status, severity)`.
 | Column | Type | Notes |
 |---|---|---|
 | report_type | ENUM | `DAILY`, `DAILY_SUMMARY`, `INDIVIDUAL`, `INDIVIDUAL_SUMMARY`, `LEAVE`, `EXCEPTION`, `MODIFIED_PUNCH_LOG` |
-| parameters_json | JSON NOT NULL | date range, filters, sort, custom fields |
-| requested_by | BINARY(16) NOT NULL | FK user |
+| parameters_json | TEXT NOT NULL | date range, filters, sort, custom fields (JSON as TEXT per ADR 0003) |
+| requested_by | BINARY(16) NULL | requesting user; null for system-initiated runs |
 | status | ENUM | `QUEUED`, `RUNNING`, `DONE`, `FAILED`, `CANCELLED` |
 | file_path | VARCHAR(500) NULL | location of CSV output |
 | row_count | BIGINT NULL | |

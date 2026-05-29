@@ -66,6 +66,8 @@ attendance:
     secure: ${COOKIE_SECURE:false}
   audit:
     enabled: true
+  reports:
+    dir: ${REPORTS_DIR:reports}
 
 springdoc:
   api-docs:

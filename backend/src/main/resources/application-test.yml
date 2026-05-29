@@ -18,3 +18,5 @@ attendance:
     refresh-ttl-seconds: 604800
   cookie:
     secure: false
+  reports:
+    dir: target/test-reports

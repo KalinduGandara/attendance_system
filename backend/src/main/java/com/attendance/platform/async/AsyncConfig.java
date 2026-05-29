@@ -21,4 +21,15 @@ public class AsyncConfig {
         exec.initialize();
         return exec;
     }
+
+    @Bean(name = "reportExecutor")
+    public Executor reportExecutor() {
+        ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+        exec.setCorePoolSize(2);
+        exec.setMaxPoolSize(4);
+        exec.setQueueCapacity(50);
+        exec.setThreadNamePrefix("report-");
+        exec.initialize();
+        return exec;
+    }
 }

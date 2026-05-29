@@ -261,7 +261,13 @@ Request:
 On success: 201 + the created assignment + queues a bounded recompute for the affected window.
 
 ### 4.5 Reports — `POST /reports`
-Kicks off an async report job.
+Kicks off an async report job. All report endpoints require `report.run`.
+
+`reportType` is one of `DAILY`, `DAILY_SUMMARY`, `INDIVIDUAL`, `INDIVIDUAL_SUMMARY`,
+`LEAVE`, `EXCEPTION`, `MODIFIED_PUNCH_LOG`. `parameters.from`/`to` are required; `INDIVIDUAL`
+also requires `employeeId`. `status` filters the Leave / Exception reports. Scope narrows by
+`employeeId` → `groupId` → `departmentId`, defaulting to all employees. `includeCustomFields`
+appends employee custom-field columns; `sort` applies best-effort lexical overrides.
 
 Request:
 ```json
@@ -278,14 +284,18 @@ Request:
 ```
 Response 202:
 ```json
-{ "id": "0193…", "status": "QUEUED" }
+{ "id": "0193…", "reportType": "DAILY_SUMMARY", "status": "QUEUED", "downloadUrl": null }
 ```
 
+### `GET /reports`
+Lists the caller's most recent report jobs (newest first).
+
 ### `GET /reports/{id}`
-Returns status + `downloadUrl` when `DONE`.
+Returns status + `downloadUrl` (non-null only when `DONE`) + `rowCount` / `errorMessage`.
 
 ### `GET /reports/{id}/download`
-Streams the CSV.
+Streams the generated CSV (`text/csv`, `Content-Disposition: attachment`). 409 if the job is
+not `DONE`; 404 if the file is missing.
 
 ### 4.6 Audit log — `GET /audit-events`
 Filterable view of the audit trail.
