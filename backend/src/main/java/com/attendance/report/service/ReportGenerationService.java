@@ -90,7 +90,7 @@ public class ReportGenerationService {
 
     /** Queues a job and kicks off asynchronous generation. */
     public ReportJob submit(ReportType type, ReportParameters params, UUID requestedBy) {
-        ReportJob job = queue(type, params, requestedBy);
+        ReportJob job = self.getObject().queue(type, params, requestedBy);
         self.getObject().runReportAsync(job.getId());
         return job;
     }
@@ -98,7 +98,10 @@ public class ReportGenerationService {
     @Async("reportExecutor")
     public void runReportAsync(UUID jobId) {
         try {
-            runReport(jobId);
+            // Through the proxy, so @Transactional (and an open session for lazy
+            // loads) actually apply — a direct this.runReport() self-invocation
+            // would bypass the advice and leave the job stuck QUEUED.
+            self.getObject().runReport(jobId);
         } catch (RuntimeException ex) {
             log.error("Report job {} failed", jobId, ex);
         }
