@@ -12,15 +12,19 @@ import {
   IconCalendarTime,
   IconClockHour4,
   IconCloudUpload,
+  IconDatabaseExport,
   IconDeviceMobile,
   IconFingerprint,
+  IconHistory,
   IconLayoutDashboard,
   IconListDetails,
   IconLogout,
   IconReportAnalytics,
   IconScale,
+  IconSettings,
   IconShieldLock,
   IconStopwatch,
+  IconTrashX,
   IconUpload,
   IconUserCircle,
   IconUsers,
@@ -60,7 +64,11 @@ const NAV: NavItem[] = [
   { label: 'Leave approvals', to: '/leave-approvals', icon: IconChecks, permission: 'leave.approve' },
   { label: 'Exceptions', to: '/exceptions', icon: IconAlertCircle, permission: 'exception.read' },
   { label: 'Reports', to: '/reports', icon: IconReportAnalytics, permission: 'report.run' },
-  { label: 'Users', to: '/users', icon: IconShieldLock, permission: 'user.read' }
+  { label: 'Users', to: '/users', icon: IconShieldLock, permission: 'user.read' },
+  { label: 'Audit log', to: '/audit-log', icon: IconHistory, permission: 'audit.read' },
+  { label: 'Backups', to: '/system/backups', icon: IconDatabaseExport, permission: 'system.admin' },
+  { label: 'Retention', to: '/system/retention', icon: IconTrashX, permission: 'system.admin' },
+  { label: 'System settings', to: '/system/settings', icon: IconSettings, permission: 'system.admin' }
 ];
 
 export function AppShellLayout() {

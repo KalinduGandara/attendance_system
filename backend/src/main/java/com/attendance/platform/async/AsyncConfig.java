@@ -32,4 +32,15 @@ public class AsyncConfig {
         exec.initialize();
         return exec;
     }
+
+    @Bean(name = "backupExecutor")
+    public Executor backupExecutor() {
+        ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
+        exec.setCorePoolSize(1);
+        exec.setMaxPoolSize(2);
+        exec.setQueueCapacity(10);
+        exec.setThreadNamePrefix("backup-");
+        exec.initialize();
+        return exec;
+    }
 }

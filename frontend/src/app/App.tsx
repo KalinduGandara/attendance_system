@@ -37,6 +37,10 @@ import { EmployeeLeavePage } from '../features/leave/pages/EmployeeLeavePage';
 import { LeaveApprovalsPage } from '../features/leave/pages/LeaveApprovalsPage';
 import { ExceptionsPage } from '../features/exception/pages/ExceptionsPage';
 import { ReportsPage } from '../features/report/pages/ReportsPage';
+import { AuditLogPage } from '../features/admin/pages/AuditLogPage';
+import { SystemSettingsPage } from '../features/admin/pages/SystemSettingsPage';
+import { BackupsPage } from '../features/admin/pages/BackupsPage';
+import { RetentionPage } from '../features/admin/pages/RetentionPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } }
@@ -299,6 +303,38 @@ export function App() {
                   element={
                     <ProtectedRoute requirePermission="exception.read">
                       <ExceptionsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/audit-log"
+                  element={
+                    <ProtectedRoute requirePermission="audit.read">
+                      <AuditLogPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/system/settings"
+                  element={
+                    <ProtectedRoute requirePermission="system.admin">
+                      <SystemSettingsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/system/backups"
+                  element={
+                    <ProtectedRoute requirePermission="system.admin">
+                      <BackupsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/system/retention"
+                  element={
+                    <ProtectedRoute requirePermission="system.admin">
+                      <RetentionPage />
                     </ProtectedRoute>
                   }
                 />

@@ -53,4 +53,17 @@ public interface PunchEventRepository extends JpaRepository<PunchEvent, UUID> {
     List<PunchEvent> findForEmployeeBetween(@Param("employeeId") UUID employeeId,
                                             @Param("from") Instant from,
                                             @Param("to") Instant to);
+
+    /**
+     * Oldest punch ids past the retention cutoff, excluding any punch referenced
+     * by a manual edit (those carry a {@code time_card_edit} FK and must survive
+     * for the forensic trail). Used by the retention purge.
+     */
+    @Query("""
+            SELECT p.id FROM PunchEvent p
+             WHERE p.eventTimeUtc < :cutoff
+               AND p.id NOT IN (SELECT e.punchEventId FROM TimeCardEdit e WHERE e.punchEventId IS NOT NULL)
+             ORDER BY p.eventTimeUtc ASC
+            """)
+    List<UUID> findIdsOlderThan(@Param("cutoff") Instant cutoff, Pageable pageable);
 }

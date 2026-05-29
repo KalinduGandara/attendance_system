@@ -65,6 +65,34 @@ cd frontend && npm install && npm run dev # http://localhost:5173, proxies /api 
 
 ## Status
 
+**Phase 9 (System Admin) complete.** Adds:
+
+- Tables (V11 migration): `system_setting` (type-aware org config), `backup_job` (tracks each
+  database dump; a job-tracking table like `report_job`), `retention_policy` (per-entity purge
+  window). Permissions `audit.read` and `system.admin` were already seeded in V2.
+- Audit viewer: `GET /audit-events` (paged, filter by actor / action / entity / date) + `GET
+  /audit-events/{id}` for the before/after drilldown, gated by `audit.read`. The audit table is
+  owned by the shared kernel; the admin module queries it without crossing module boundaries.
+- System settings: `GET` + `PATCH /system/settings` (`system.admin`) with type-aware validation
+  (`NUMBER`/`BOOLEAN`/`JSON`, and `*_cron` keys checked against Spring cron). Every change is audited.
+- Scheduled backups: `mysqldump` via a new `DatabaseDialectPort` (ADR-0003) → `MariaDbDialect`,
+  written under `backups/` on the `backupExecutor` pool; `POST /system/backups` runs one now, with
+  list / status / download endpoints. The cron lives in `system_setting` (`backup_cron`,
+  `backup_enabled`) and re-schedules live via a dynamic `Trigger`; successful runs rotate to
+  `backup_keep_count`.
+- Retention: `retention_policy` per entity (`punch_event`, `audit_event`, `report_job`), purged in
+  bounded batches through a per-module `RetentionPort` (no cross-module repository access);
+  `punch_event` keeps any punch referenced by a manual edit. `GET` / `PUT
+  /system/retention-policies/{entityType}` (`system.admin`); all disabled by default.
+- Frontend `features/admin/`: Audit Log (filters + drilldown), System Settings (typed editors),
+  Backups (run / poll / download), Retention (per-entity window + enable). Routes + nav gated by
+  `audit.read` (audit) and `system.admin` (the rest).
+- Tests (269 passing total, +23 in Phase 9): controller security gates, retention purge respects
+  the window and never touches recent data (the SRS NFR-3 `punch_event` path), setting type
+  validation, backup orchestration with a mocked executor (DONE + size, failure path), the
+  `mysqldump` command shape (secret kept out of the argv), and an audit-trail regression that a
+  settings change writes an `audit_event`.
+
 **Phase 8 (Reporting) complete.** Adds:
 
 - Table (V10 migration): `report_job` — tracks asynchronous report generation; all state
@@ -199,4 +227,4 @@ cd frontend && npm install && npm run dev # http://localhost:5173, proxies /api 
 **Phase 0 (Foundation) complete.** End-to-end auth slice, Flyway-managed schema, audit
 infrastructure, OpenAPI/Swagger, Mantine app shell, dev docker-compose, GitHub Actions CI.
 
-Next: Phase 9 — System Admin (audit viewer, backups, retention) (see [docs/plan.md](docs/plan.md)).
+Next: Phase 10 — Hardening (perf, security review, accessibility, ops docs) (see [docs/plan.md](docs/plan.md)).

@@ -68,6 +68,8 @@ attendance:
     enabled: true
   reports:
     dir: ${REPORTS_DIR:reports}
+  backups:
+    dir: ${BACKUPS_DIR:backups}
 
 springdoc:
   api-docs:

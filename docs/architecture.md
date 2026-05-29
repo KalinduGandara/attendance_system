@@ -103,16 +103,19 @@ public interface PunchEventIngestionPort {
 
 ```java
 public interface DatabaseDialectPort {
-    String currentTimestampSql();
-    String upsertHint();
-    boolean supportsJsonOperators();
-    // ... other vendor-specific bits
+    String name();
+    String backupFileExtension();
+    List<String> buildBackupCommand(BackupTarget target);   // Phase 9: mysqldump for MariaDB
+    Map<String, String> backupEnvironment(BackupTarget target);
+    // ... other vendor-specific bits (currentTimestampSql, upsertHint, …) added when first needed
 }
 ```
 
 - All Flyway migrations live in `db/migration/` and use **portable ANSI SQL only**.
 - Vendor-specific overrides go in `db/migration/{vendor}/` and are layered conditionally.
 - JPA uses the standard Hibernate dialect; we never write a `nativeQuery` without going through a dialect-port method.
+- v1 implements `MariaDbDialect`; per the "no abstraction it doesn't use" principle the port carries
+  only what's needed today (the Phase 9 backup command), with room for the other bits later.
 
 ### 5.3 `ReportExporterPort`
 
@@ -210,9 +213,13 @@ For a floating shift, the first `CHECK_IN` time is matched against the configure
 - Cache eviction via Spring `@CacheEvict` on writes.
 
 ### 8.3 Async & Scheduling
-- **Quartz** for cron jobs (nightly recompute, retention purge, backup).
-- **Spring `@Async`** thread pool for report generation.
-- Job state persisted (so a restart doesn't lose work).
+- **Quartz** is the intended home for cron jobs; v1 uses Spring `@Scheduled` as a thin stand-in
+  (nightly recompute, retention purge, backup). The backup/retention triggers read their cron from
+  `system_setting` via a `SchedulingConfigurer` dynamic `Trigger`, so an admin can re-schedule them
+  from the Settings page without a restart.
+- **Spring `@Async`** thread pools for report generation (`reportExecutor`) and backups
+  (`backupExecutor`).
+- Job state persisted in `report_job` / `backup_job` (so a restart doesn't lose work).
 
 ### 8.4 Observability
 - Spring Boot Actuator endpoints (`/actuator/health`, `/actuator/metrics`, behind admin auth).

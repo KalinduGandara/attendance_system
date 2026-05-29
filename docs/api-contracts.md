@@ -298,15 +298,46 @@ Streams the generated CSV (`text/csv`, `Content-Disposition: attachment`). 409 i
 not `DONE`; 404 if the file is missing.
 
 ### 4.6 Audit log — `GET /audit-events`
-Filterable view of the audit trail.
+Filterable, paged view of the audit trail. Requires `audit.read` (ADMIN + HR_MANAGER).
 
-Query: `actorUserId`, `entityType`, `entityId`, `action`, `from`, `to`, plus pagination, sorted by `occurredAt,desc` by default.
+Query: `actorUserId`, `entityType`, `entityId`, `action`, `from`, `to` (dates, `to` inclusive),
+plus `page`/`size`. Returns the standard paged envelope sorted by `occurredAt,desc`.
+`GET /audit-events/{id}` returns one event with `beforeJson` / `afterJson` for the drilldown.
 
 ### 4.7 System settings — `GET /system/settings`
-Returns all settings.
+Returns all settings (`key`, `value`, `valueType`, `description`, `updatedAt`). Requires
+`system.admin`.
 
 ### `PATCH /system/settings`
-Body is a partial object of keys to update. Every write is audited.
+Body is a partial object of `key → value` (strings). Each value is validated against the setting's
+`valueType` (and `*_cron` keys against Spring cron); an unknown key or invalid value is rejected
+`400` before anything is persisted. Every write is audited. Returns the full updated set.
+
+```json
+{ "backup_enabled": "true", "backup_cron": "0 0 2 * * *" }
+```
+
+### 4.8 Backups — `GET /system/backups`
+Lists recent backup jobs (newest first). Requires `system.admin`.
+
+- `POST /system/backups` — run a backup now; `202` + the `RUNNING` job. Generation is asynchronous
+  on the `backupExecutor` pool; poll `GET /system/backups/{id}` for status.
+- `GET /system/backups/{id}/download` — streams the dump (`application/octet-stream`); `409` if the
+  job is not `DONE`, `404` if the file is missing.
+
+A job response carries `triggerType` (`SCHEDULED`/`MANUAL`), `status`, `sizeBytes`, timing, and a
+`downloadUrl` (non-null only when `DONE`).
+
+### 4.9 Retention policies — `GET /system/retention-policies`
+Lists per-entity retention policies. Requires `system.admin`.
+
+`PUT /system/retention-policies/{entityType}` updates one policy:
+```json
+{ "retainDays": 365, "enabled": true }
+```
+`retainDays` must be ≥ 1; `entityType` must be one with retention support (`punch_event`,
+`audit_event`, `report_job`). The change is audited; `lastRunAt` / `lastRunDeleted` report the most
+recent purge.
 
 ## 5. WebSocket / SSE (future)
 

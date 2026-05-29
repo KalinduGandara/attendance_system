@@ -495,47 +495,59 @@ Append-only. No updates, no deletes (except via retention purge).
 | action | VARCHAR(64) NOT NULL | `CREATE`, `UPDATE`, `DELETE`, `LOGIN`, `LOGOUT`, `EXPORT`, … |
 | entity_type | VARCHAR(64) NULL | |
 | entity_id | BINARY(16) NULL | |
-| before_json | JSON NULL | |
-| after_json | JSON NULL | |
+| before_json | TEXT NULL | JSON as TEXT per ADR 0003 |
+| after_json | TEXT NULL | JSON as TEXT per ADR 0003 |
 | ip | VARCHAR(45) NULL | |
 | user_agent | VARCHAR(255) NULL | |
 | request_id | CHAR(36) NULL | trace correlation |
 | occurred_at | TIMESTAMP NOT NULL | |
 
 Indexes: `(occurred_at)`, `(actor_user_id, occurred_at)`, `(entity_type, entity_id)`.
+Retention purge is the only delete path (via the `audit_event` `RetentionPort`).
 
 ### `system_setting`
-Key-value store for org-wide settings.
+Key-value store for org-wide settings (audited config; standard `id`/audit/version columns).
 | Column | Type | Notes |
 |---|---|---|
-| setting_key | VARCHAR(64) PRIMARY KEY | |
+| setting_key | VARCHAR(64) UNIQUE NOT NULL | natural key (the standard `id` is the PK) |
 | setting_value | TEXT NOT NULL | |
 | value_type | ENUM | `STRING`, `NUMBER`, `BOOLEAN`, `JSON` |
 | description | VARCHAR(255) | |
 
-Seeded keys: `default_timezone`, `week_start_day`, `org_name`, `password_min_length`, `jwt_access_ttl_seconds`, `jwt_refresh_ttl_seconds`, `nightly_recompute_cron`, etc.
+Updates are type-validated (`NUMBER` numeric, `BOOLEAN` true/false, `JSON` parseable, and
+`*_cron` keys must be valid Spring cron). Seeded keys (V11): `org_name`, `default_timezone`,
+`week_start_day`, `password_min_length`, `backup_enabled`, `backup_cron`, `backup_keep_count`,
+`retention_enabled`, `retention_cron`. The `*_cron` keys drive the dynamic backup / retention
+schedulers, so editing them re-schedules without a restart.
 
 ### `backup_job`
+Job-tracking table (not audited), like `report_job`.
 | Column | Type | Notes |
 |---|---|---|
-| trigger | ENUM | `SCHEDULED`, `MANUAL` |
+| trigger_type | ENUM | `SCHEDULED`, `MANUAL` (`trigger` is reserved SQL) |
 | status | ENUM | `RUNNING`, `DONE`, `FAILED` |
-| file_path | VARCHAR(500) NULL | |
+| file_path | VARCHAR(500) NULL | dump written under `backups/` |
 | size_bytes | BIGINT NULL | |
 | started_at | TIMESTAMP NOT NULL | |
 | completed_at | TIMESTAMP NULL | |
 | error_message | VARCHAR(1000) NULL | |
 
+The dump command comes from the `DatabaseDialectPort` (MariaDB → `mysqldump`); a successful run
+triggers keep-count rotation (`backup_keep_count`).
+
 ### `retention_policy`
+Audited config; standard `id`/audit/version columns.
 | Column | Type | Notes |
 |---|---|---|
-| entity_type | VARCHAR(64) UNIQUE NOT NULL | e.g. `punch_event`, `audit_event` |
+| entity_type | VARCHAR(64) UNIQUE NOT NULL | matches a module's `RetentionPort` (`punch_event`, `audit_event`, `report_job`) |
 | retain_days | INT NOT NULL | |
 | enabled | BOOLEAN NOT NULL | |
 | last_run_at | TIMESTAMP NULL | |
-| last_run_deleted | BIGINT NULL | |
+| last_run_deleted | BIGINT NULL | rows deleted on the last run |
 
-Seeded with disabled defaults; admin opts in per type.
+Seeded disabled (V11): `punch_event` 365d, `audit_event` 730d, `report_job` 90d. Purge runs in
+bounded batches via the owning module's `RetentionPort`; `punch_event` keeps any punch referenced
+by a manual edit.
 
 ---
 

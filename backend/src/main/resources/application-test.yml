@@ -20,3 +20,5 @@ attendance:
     secure: false
   reports:
     dir: target/test-reports
+  backups:
+    dir: target/test-backups
